@@ -2,8 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/lamp"
-        android:title="@string/settings"
-
+        android:id="@+id/account"
+        android:title="@string/account"
         app:showAsAction="ifRoom" />
 </menu>

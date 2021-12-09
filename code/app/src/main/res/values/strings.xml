@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Voice Versa</string>
+    <string name="process">обработка аудио</string>
+    <string name="account">личный кабинет</string>
+    <string name="login">логин</string>
+    <string name="password">пароль</string>
+    <string name="log_in">войти</string>
+    <string name="sign_in">зарегистироваться</string>
 </resources>

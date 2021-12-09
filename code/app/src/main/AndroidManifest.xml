@@ -3,52 +3,54 @@
     package="com.example.voiceversa">
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-
-    <activity android:name=".AuthActivity">
+        android:theme="@style/AppTheme">
+    <activity android:name=".AuthActivity"
+        android:exported = "true">
         <intent-filter>
             <action android:name="android.intent.action.Auth" />
-
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
-    <activity android:name=".AccountActivity">
+    <activity android:name=".AccountActivity"
+        android:exported = "true">
         <intent-filter>
-            <action android:name="android.intent.action.Account" />
-            <category android:name="android.intent.category.LAUNCHER" />
+            <action android:name="android.intent.action.Account"/>
+            <category android:name="android.intent.category.DEFAULT" />
         </intent-filter>
     </activity>
-
-        <activity android:name=".SettingsActivity">
+        <activity android:name=".SettingsActivity"
+            android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Settings" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".RequestActivity">
+        <activity android:name=".RequestActivity"
+            android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Request" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".LibraryActivity">
+        <activity android:name=".LibraryActivity"
+            android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Library" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ProcessActivity">
+        <activity android:name=".ProcessActivity"
+            android:exported = "true">
             <intent-filter>
-                <action android:name="android.intent.action.Process" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.Process"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-    </application>>
+    </application>
 </manifest>
