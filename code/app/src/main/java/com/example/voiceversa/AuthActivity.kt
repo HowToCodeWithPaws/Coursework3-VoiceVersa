@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import java.util.*
 
 class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_auth)
+        Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"
 
         var login: String = ""
         var password: String = ""

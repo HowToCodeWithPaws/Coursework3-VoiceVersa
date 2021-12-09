@@ -6,4 +6,7 @@
     <string name="password">пароль</string>
     <string name="log_in">войти</string>
     <string name="sign_in">зарегистироваться</string>
+    <string name="settings">настройки</string>
+    <string name="request">заявка</string>
+    <string name="library">библиотека</string>
 </resources>

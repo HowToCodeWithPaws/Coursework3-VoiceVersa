@@ -11,36 +11,32 @@
     <activity android:name=".AuthActivity"
         android:exported = "true">
         <intent-filter>
-            <action android:name="android.intent.action.Auth" />
+            <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
-    <activity android:name=".AccountActivity"
+        <activity android:name=".AccountActivity"
         android:exported = "true">
         <intent-filter>
             <action android:name="android.intent.action.Account"/>
-            <category android:name="android.intent.category.DEFAULT" />
         </intent-filter>
     </activity>
         <activity android:name=".SettingsActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Settings" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".RequestActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Request" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".LibraryActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Library" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -48,9 +44,9 @@
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Process"/>
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
 
     </application>
 </manifest>

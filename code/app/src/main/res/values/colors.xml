@@ -6,9 +6,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="lightBackground">#EEF1EE</color>
-    <color name="primaryColor">#6b9b37</color>
-    <color name="primaryDarkColor">#6b9b37</color>
-    <color name="secondaryColor">#9ccc65</color>
-    <color name="secondaryDarkColor">#5a9216</color>
+    <color name="primaryColor">#f3b9b9</color>
+    <color name="primaryDarkColor">#9b3d37</color>
+    <color name="secondaryColor">#f3c7b9</color>
+    <color name="secondaryDarkColor">#9b3758</color>
     <color name="accentBackground">#e1e2e1</color>
 </resources>
