@@ -9,4 +9,7 @@
     <string name="settings">настройки</string>
     <string name="request">заявка</string>
     <string name="library">библиотека</string>
+    <string name="elapsedTime">00:00</string>
+    <string name="totalTime">1:00</string>
+    <string name="voice">Голос</string>
 </resources>

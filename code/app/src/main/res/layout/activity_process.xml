@@ -28,4 +28,190 @@
             android:hapticFeedbackEnabled="false" />
     </com.google.android.material.appbar.AppBarLayout>
 
+
+    <Button
+        android:id="@+id/startRecBtn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/mic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/pauseRecBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/stop"
+        app:layout_constraintStart_toEndOf="@id/startRecBtn"
+        app:layout_constraintBottom_toBottomOf="@id/startRecBtn" />
+
+    <Button
+        android:id="@+id/stopRecBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/finish"
+        app:layout_constraintStart_toEndOf="@id/pauseRecBtn"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/playRecBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/play"
+        android:onClick="playRecBtnClick"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startRecBtn" />
+
+    <SeekBar
+        android:id="@+id/positionRecBar"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/playRecBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.243"
+        app:layout_constraintStart_toEndOf="@id/playRecBtn" />
+
+    <Spinner
+        android:id="@+id/actionsRecSpinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/dots"
+        app:layout_constraintBottom_toBottomOf="@id/positionRecBar"
+        app:layout_constraintStart_toEndOf="@id/positionRecBar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/positionRecBar">
+
+        <TextView
+            android:id="@+id/elapsedTimeLabelRec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="55dp"
+            android:text="@string/elapsedTime" />
+
+        <TextView
+            android:id="@+id/totalTimeLabelRec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="235dp"
+            android:text="@string/totalTime" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/positionRecBar">
+
+        <TextView
+            android:id="@+id/voicesLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="16dp"
+            android:text="@string/voice"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/voicesSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            app:layout_constraintStart_toEndOf="@id/voicesLabel"
+            app:layout_constraintBottom_toBottomOf="@id/voicesLabel" />
+
+        <Button
+            android:id="@+id/playVoiceBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/play"
+            android:onClick="playVoiceBtnClick"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/processBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/process"
+        android:onClick="process"
+        android:layout_marginTop="100dp"
+        app:layout_constraintStart_toStartOf="@id/playRecBtn"
+        app:layout_constraintTop_toBottomOf="@id/playRecBtn" />
+
+
+
+    <Button
+        android:id="@+id/playResBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/play"
+        android:onClick="playResBtnClick"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/processBtn" />
+
+    <SeekBar
+        android:id="@+id/positionResBar"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/playResBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.243"
+        app:layout_constraintStart_toEndOf="@id/playResBtn" />
+
+    <Spinner
+        android:id="@+id/actionsResSpinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/dots"
+        app:layout_constraintBottom_toBottomOf="@id/positionResBar"
+        app:layout_constraintStart_toEndOf="@id/positionResBar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/positionResBar">
+
+        <TextView
+            android:id="@+id/elapsedTimeLabelRes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="55dp"
+            android:text="@string/elapsedTime" />
+
+        <TextView
+            android:id="@+id/totalTimeLabelRes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="235dp"
+            android:text="@string/totalTime" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
