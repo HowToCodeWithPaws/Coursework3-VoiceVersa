@@ -1,9 +1,9 @@
 package com.example.voiceversa
 
 import android.Manifest
+import android.R.attr
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -21,9 +21,11 @@ import androidx.core.content.ContextCompat
 import java.io.IOException
 import java.util.*
 
-class ProcessActivity : AppCompatActivity() {
+
+class ProcessActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var startRecBtn: Button
+    lateinit var attachRecBtn: Button
     lateinit var pauseRecBtn: Button
     lateinit var stopRecBtn: Button
     lateinit var voiceSpinner: Spinner
@@ -42,11 +44,11 @@ class ProcessActivity : AppCompatActivity() {
     private  var mp: MediaPlayer? = null
     private var totalTime: Int = 0
 
-    private var flag = false
     private var output: String? = null
     private var mediaRecorder: MediaRecorder? = null
     private var state: Boolean = false
     private var recordingStopped: Boolean = false
+    private var  chosenRec :String? = null
 
     @RequiresApi(31)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +68,7 @@ class ProcessActivity : AppCompatActivity() {
          voiceSpinner = findViewById<Spinner>(R.id.voicesSpinner)
          actionsRecSpinner = findViewById<Spinner>(R.id.actionsRecSpinner)
          actionsResSpinner = findViewById<Spinner>(R.id.actionsResSpinner)
+         attachRecBtn = findViewById<Button>(R.id.attachRecBtn)
          processBtn = findViewById<Button>(R.id.processBtn)
          playRecBtn = findViewById<Button>(R.id.playRecBtn)
          playResBtn = findViewById<Button>(R.id.playResBtn)
@@ -77,14 +80,6 @@ class ProcessActivity : AppCompatActivity() {
          totalTimeLabelRec = findViewById<TextView>(R.id.totalTimeLabelRec)
          totalTimeLabelRes = findViewById<TextView>(R.id.totalTimeLabelRes)
 
-    //    Toast.makeText(this,  Uri.parse(this.externalCacheDir!!.absolutePath + "/recording.mp3").toString(), Toast.LENGTH_SHORT).show()
-
-
-//        mp = MediaPlayer.create(this, R.raw.w)
-//        mp.isLooping = true
-//        mp.setVolume(0.5f, 0.5f)
-//        totalTime = mp.duration
-//        totalTimeLabelRec.text = createTimeLabel(totalTime)
 
         startRecBtn = findViewById(R.id.startRecBtn)
         stopRecBtn = findViewById(R.id.stopRecBtn)
@@ -99,12 +94,6 @@ class ProcessActivity : AppCompatActivity() {
             val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
             ActivityCompat.requestPermissions(this, permissions,0)
         }
-
-//        mediaRecorder =  MediaRecorder()
-//        mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
-//        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-//        mediaRecorder?.setOutputFile(output)
 
         startRecBtn.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this,
@@ -124,6 +113,30 @@ class ProcessActivity : AppCompatActivity() {
         pauseRecBtn.setOnClickListener {
             pauseRecording()
         }
+
+        attachRecBtn.setOnClickListener (this)
+    }
+
+    override fun onClick(v: View?) {
+                val intent = Intent()
+                intent.type = "audio/*"
+                intent.action = Intent.ACTION_GET_CONTENT
+                // startActivityForResult(intent_upload,1);
+                startActivityForResult(Intent.createChooser(intent, "Select audio"), 1)
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                chosenRec = (data?.data!!).toString()
+                Toast.makeText(this, "You chose the audio $chosenRec", Toast.LENGTH_SHORT).show()
+                getPlayableRecording()
+            }else{
+                Toast.makeText(this,"You need to choose the audio!", Toast.LENGTH_SHORT).show()
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun mediarecorderInit(){
@@ -151,54 +164,13 @@ class ProcessActivity : AppCompatActivity() {
         }
     }
 
-    private fun getPlayableRecording() {
-        var recURL = Uri.parse(output)
-        mp = MediaPlayer.create(this, recURL)
-        mp?.isLooping = false
-        mp?.setVolume(0.5f, 0.5f)
-        totalTime = mp?.duration!!
-        totalTimeLabelRec.text = createTimeLabel(totalTime)
-
-        positionRecBar.max = totalTime
-        positionRecBar.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser) {
-                        mp?.seekTo(progress)
-                    }
-                }
-                override fun onStartTrackingTouch(p0: SeekBar?) {
-                }
-                override fun onStopTrackingTouch(p0: SeekBar?) {
-                }
-            }
-        )
-
-        // Thread
-        Thread(Runnable {
-            while (mp != null) {
-                try {
-                    var msg = Message()
-                    msg.what = mp?.currentPosition!!
-                    handler.sendMessage(msg)
-                    Thread.sleep(1000)
-                } catch (e: InterruptedException) {
-                }
-            }
-        }).start()
-
-
-        playRecBtn.isEnabled = true
-    }
-
     private fun stopRecording(){
-     //   Toast.makeText(this,  this.externalCacheDir!!.absolutePath + "/recording.mp3", Toast.LENGTH_LONG).show()
-
         if(state){
             mediaRecorder?.stop()
             mediaRecorder?.release()
             state = false
             Toast.makeText(this, "Recording stopped!", Toast.LENGTH_SHORT).show()
+            chosenRec = output
             getPlayableRecording()
         }else{
             Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
@@ -240,6 +212,9 @@ class ProcessActivity : AppCompatActivity() {
             // Update Labels
             var elapsedTime = createTimeLabel(currentPosition)
             elapsedTimeLabelRec.text = elapsedTime
+            if (elapsedTime == createTimeLabel(totalTime)){
+                playRecBtn.setBackgroundResource(R.drawable.play)
+            }
         }
     }
 
@@ -256,18 +231,54 @@ class ProcessActivity : AppCompatActivity() {
     }
 
     fun playRecBtnClick(v: View) {
-  //      Toast.makeText(this,  Uri.parse(this.externalCacheDir!!.absolutePath + "/recording.mp3").toString(), Toast.LENGTH_LONG).show()
-
         if (mp?.isPlaying == true) {
-            // Stop
             mp!!.pause()
             playRecBtn.setBackgroundResource(R.drawable.play)
 
         } else {
-            // Start
             mp?.start()
             playRecBtn.setBackgroundResource(R.drawable.stop)
         }
+    }
+
+    private fun getPlayableRecording() {
+        var recURL = Uri.parse(chosenRec)
+        mp = MediaPlayer.create(this, recURL)
+        mp?.isLooping = false
+        mp?.setVolume(0.5f, 0.5f)
+        totalTime = mp?.duration!!
+        totalTimeLabelRec.text = createTimeLabel(totalTime)
+
+        positionRecBar.max = totalTime
+        positionRecBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        mp?.seekTo(progress)
+                    }
+                }
+                override fun onStartTrackingTouch(p0: SeekBar?) {
+                }
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+                }
+            }
+        )
+
+        // Thread
+        Thread(Runnable {
+            while (mp != null) {
+                try {
+                    var msg = Message()
+                    msg.what = mp?.currentPosition!!
+                    handler.sendMessage(msg)
+                    Thread.sleep(1000)
+                } catch (e: InterruptedException) {
+                }
+            }
+        }).start()
+
+
+        playRecBtn.isEnabled = true
     }
 
     fun playVoiceBtnClick(view: View) {}
