@@ -41,10 +41,14 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var elapsedTimeLabelRes: TextView
     lateinit var totalTimeLabelRec: TextView
     lateinit var totalTimeLabelRes: TextView
-    private  var mp: MediaPlayer? = null
+    private  var recPlayer: MediaPlayer? = null
+    private  var resPlayer: MediaPlayer? = null
     private var totalTime: Int = 0
+    private var totalTimeRes: Int = 0
 
-    private var output: String? = null
+    private var processed : Boolean = false
+    private var outputPath: String? = null
+    private var resultPath: String? = null
     private var mediaRecorder: MediaRecorder? = null
     private var state: Boolean = false
     private var recordingStopped: Boolean = false
@@ -81,11 +85,15 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
          totalTimeLabelRes = findViewById<TextView>(R.id.totalTimeLabelRes)
 
 
+        playRecBtn.isEnabled = false
+        playResBtn.isEnabled = false
+
         startRecBtn = findViewById(R.id.startRecBtn)
         stopRecBtn = findViewById(R.id.stopRecBtn)
         pauseRecBtn = findViewById(R.id.pauseRecBtn)
 
-        output = this.externalCacheDir!!.absolutePath + "/recording.mp3"
+        outputPath = this.externalCacheDir!!.absolutePath + "/recording.mp3"
+        resultPath = this.externalCacheDir!!.absolutePath + "/result.mp3"
 
 
         if (ContextCompat.checkSelfPermission(this,
@@ -144,7 +152,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
         mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        mediaRecorder?.setOutputFile(output)
+        mediaRecorder?.setOutputFile(outputPath)
         mediaRecorder?.prepare()
     }
 
@@ -170,7 +178,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
             mediaRecorder?.release()
             state = false
             Toast.makeText(this, "Recording stopped!", Toast.LENGTH_SHORT).show()
-            chosenRec = output
+            chosenRec = outputPath
             getPlayableRecording()
         }else{
             Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
@@ -218,6 +226,23 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("HandlerLeak")
+    var handlerRes = object : Handler() {
+        override fun handleMessage(msg: Message) {
+            var currentPosition = msg.what
+
+            // Update positionBar
+            positionResBar.progress = currentPosition
+
+            // Update Labels
+            var elapsedTime = createTimeLabel(currentPosition)
+            elapsedTimeLabelRes.text = elapsedTime
+            if (elapsedTime == createTimeLabel(totalTimeRes)){
+                playResBtn.setBackgroundResource(R.drawable.play)
+            }
+        }
+    }
+
     fun createTimeLabel(time: Int): String {
         var timeLabel = ""
         var min = time / 1000 / 60
@@ -231,22 +256,22 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun playRecBtnClick(v: View) {
-        if (mp?.isPlaying == true) {
-            mp!!.pause()
+        if (recPlayer?.isPlaying == true) {
+            recPlayer!!.pause()
             playRecBtn.setBackgroundResource(R.drawable.play)
 
         } else {
-            mp?.start()
+            recPlayer?.start()
             playRecBtn.setBackgroundResource(R.drawable.stop)
         }
     }
 
     private fun getPlayableRecording() {
         var recURL = Uri.parse(chosenRec)
-        mp = MediaPlayer.create(this, recURL)
-        mp?.isLooping = false
-        mp?.setVolume(0.5f, 0.5f)
-        totalTime = mp?.duration!!
+        recPlayer = MediaPlayer.create(this, recURL)
+        recPlayer?.isLooping = false
+        recPlayer?.setVolume(0.5f, 0.5f)
+        totalTime = recPlayer?.duration!!
         totalTimeLabelRec.text = createTimeLabel(totalTime)
 
         positionRecBar.max = totalTime
@@ -254,7 +279,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
-                        mp?.seekTo(progress)
+                        recPlayer?.seekTo(progress)
                     }
                 }
                 override fun onStartTrackingTouch(p0: SeekBar?) {
@@ -266,10 +291,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
 
         // Thread
         Thread(Runnable {
-            while (mp != null) {
+            while (recPlayer != null) {
                 try {
                     var msg = Message()
-                    msg.what = mp?.currentPosition!!
+                    msg.what = recPlayer?.currentPosition!!
                     handler.sendMessage(msg)
                     Thread.sleep(1000)
                 } catch (e: InterruptedException) {
@@ -281,7 +306,68 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener {
         playRecBtn.isEnabled = true
     }
 
-    fun playVoiceBtnClick(view: View) {}
-    fun playResBtnClick(view: View) {}
-    fun process(view: View) {}
+
+    fun playResBtnClick(view: View) {
+        if (resPlayer?.isPlaying == true) {
+            resPlayer!!.pause()
+            playResBtn.setBackgroundResource(R.drawable.play)
+
+        } else {
+            resPlayer?.start()
+            playResBtn.setBackgroundResource(R.drawable.stop)
+        }
+    }
+
+    private fun getPlayableResult() {
+        var resURL = Uri.parse(resultPath)
+        resPlayer = MediaPlayer.create(this, resURL)
+        resPlayer?.isLooping = false
+        resPlayer?.setVolume(0.5f, 0.5f)
+        totalTimeRes = resPlayer?.duration!!
+        totalTimeLabelRes.text = createTimeLabel(totalTimeRes)
+
+        positionResBar.max = totalTimeRes
+        positionResBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        resPlayer?.seekTo(progress)
+                    }
+                }
+                override fun onStartTrackingTouch(p0: SeekBar?) {
+                }
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+                }
+            }
+        )
+
+        // Thread
+        Thread(Runnable {
+            while (resPlayer != null) {
+                try {
+                    var msg = Message()
+                    msg.what = resPlayer?.currentPosition!!
+                    handlerRes.sendMessage(msg)
+                    Thread.sleep(1000)
+                } catch (e: InterruptedException) {
+                }
+            }
+        }).start()
+
+        playResBtn.isEnabled = true
+    }
+
+
+    fun process(view: View) {
+        //TODO
+        processed = true
+        Toast.makeText(this,"Your audio was processed!", Toast.LENGTH_SHORT).show()
+        getPlayableResult()
+    }
+
+    fun playVoiceBtnClick(view: View) {
+
+        //TODO
+    }
+
 }
