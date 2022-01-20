@@ -12,4 +12,7 @@
     <string name="elapsedTime">00:00</string>
     <string name="totalTime">1:00</string>
     <string name="voice">Голос</string>
+    <string name="share">Поделиться</string>
+    <string name="add">Добавить</string>
+    <string name="download">Скачать</string>
 </resources>

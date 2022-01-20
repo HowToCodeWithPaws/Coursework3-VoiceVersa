@@ -54,6 +54,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+
     <Button
         android:id="@+id/pauseRecBtn"
         android:layout_width="30dp"
@@ -65,15 +67,6 @@
         app:layout_constraintStart_toEndOf="@id/startRecBtn"
         app:layout_constraintBottom_toBottomOf="@id/startRecBtn" />
 
-    <Button
-        android:id="@+id/stopRecBtn"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="80dp"
-        android:background="@drawable/finish"
-        app:layout_constraintStart_toEndOf="@id/pauseRecBtn"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/playRecBtn"
@@ -88,21 +81,15 @@
 
     <SeekBar
         android:id="@+id/positionRecBar"
-        android:layout_width="300dp"
+        android:layout_width="270dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/playRecBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.243"
+        app:layout_constraintHorizontal_bias="0.10"
         app:layout_constraintStart_toEndOf="@id/playRecBtn" />
 
-    <Spinner
-        android:id="@+id/actionsRecSpinner"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="12dp"
-        android:background="@drawable/dots"
-        app:layout_constraintBottom_toBottomOf="@id/positionRecBar"
-        app:layout_constraintStart_toEndOf="@id/positionRecBar" />
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -116,14 +103,14 @@
             android:id="@+id/elapsedTimeLabelRec"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="55dp"
+            android:layout_marginStart="57dp"
             android:text="@string/elapsedTime" />
 
         <TextView
             android:id="@+id/totalTimeLabelRec"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="235dp"
+            android:layout_marginStart="200dp"
             android:text="@string/totalTime" />
 
     </LinearLayout>
@@ -187,21 +174,13 @@
 
     <SeekBar
         android:id="@+id/positionResBar"
-        android:layout_width="300dp"
+        android:layout_width="270dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/playResBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.243"
+        app:layout_constraintHorizontal_bias="0.1"
         app:layout_constraintStart_toEndOf="@id/playResBtn" />
 
-    <Spinner
-        android:id="@+id/actionsResSpinner"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="12dp"
-        android:background="@drawable/dots"
-        app:layout_constraintBottom_toBottomOf="@id/positionResBar"
-        app:layout_constraintStart_toEndOf="@id/positionResBar" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -215,16 +194,34 @@
             android:id="@+id/elapsedTimeLabelRes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="55dp"
+            android:layout_marginStart="57dp"
             android:text="@string/elapsedTime" />
 
         <TextView
             android:id="@+id/totalTimeLabelRes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="235dp"
+            android:layout_marginStart="200dp"
             android:text="@string/totalTime" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/actionsRec"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/positionRecBar"
+        app:layout_constraintStart_toEndOf="@id/positionRecBar"
+        app:srcCompat="@drawable/vertical" />
+
+    <ImageView
+        android:id="@+id/actionsRes"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/positionResBar"
+        app:layout_constraintStart_toEndOf="@id/positionResBar"
+        app:srcCompat="@drawable/vertical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

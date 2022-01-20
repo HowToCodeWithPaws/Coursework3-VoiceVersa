@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="2dp">
+    <item
+        android:id="@+id/add"
+        android:icon="@drawable/add"
+        android:title="@string/add"
+        android:layout_width="2dp"/>
+    <item
+        android:id="@+id/download"
+        android:title="@string/download"
+        android:icon="@drawable/download"
+        android:titleCondensed="@string/download"
+        android:layout_width="2dp"/>
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        android:icon="@drawable/share"
+        android:layout_width="2dp"/>
+</menu>
