@@ -512,7 +512,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
-        //TODO("Not yet implemented")
     }
 
 }
