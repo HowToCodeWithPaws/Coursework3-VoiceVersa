@@ -8,9 +8,8 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Spinner
 import androidx.recyclerview.widget.RecyclerView
-import com.example.voiceversa.databinding.AudioItemBinding
 import com.example.voiceversa.databinding.ListItemBinding
-import kotlinx.android.synthetic.main.audio_item.*
+import kotlinx.android.synthetic.main.list_item.view.*
 import java.util.ArrayList
 
 
@@ -34,34 +33,25 @@ class NestedListAdapter(
         with(holder) {
             with(listList[position]) {
                 binding.tvListName.text = this.name
-            //    if (listList[position].name == "Текущие дела") {
-                    var array = ArrayList<Audio>()
-                    array.add(Audio("h1", "recording", 23))
-                    array.add(Audio("t2", "recording", 23))
-                    array.add(Audio("g3", "recording", 32))
-                    //userList.plans.filter { !it.isFinished } as ArrayList<Plan>
+               if (listList[position].name == "Сохраненные записи") {
+
+                    var array = user.audios.filter { it.source == "recording" } as ArrayList<Audio>
                         //  if (this.sort == "по важности") {
                         //    array.sortByDescending { it.importance }
                     //} else {
                         //  array.sortBy { it.deadline }
-                   // }
+                    //}
                     adapter =
                         AudiosListAdapter(array)
-//                } else {
-//                    var array =
-//                        ArrayList<Audio>()//userList.plans.filter { !it.isFinished } as ArrayList<Plan>
-//                    array.add(Audio("hh", "result", 54))
-//                    array.add(Audio("hh1", "result", 54))
-//                    array.add(Audio("hh2", "result", 45))
-//                    array.add(Audio("hh3", "result", 45))
-////                    var array = userList.plans.filter { it.isFinished } as ArrayList<Plan>
+                } else {
+                   var array = user.audios.filter { it.source == "result" } as ArrayList<Audio>
 //                    if (this.sort == "по важности") {
 ////                        array.sortByDescending { it.importance }
 //                    } else {
 ////                        array.sortBy { it.deadline }
 //                    }
-//                    adapter = AudiosListAdapter(array)
-//                }
+                    adapter = AudiosListAdapter(array)
+                }
                 binding.itemsList.adapter = adapter
 
                 binding.eyeOpen.visibility = if (this.expand) {

@@ -37,7 +37,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         RecyclerView.ViewHolder(itemView) {
 
         @RequiresApi(Build.VERSION_CODES.O)
-        var audio: Audio = Audio()
+       var audio: Audio = Audio()
 
         init {
            // itemView.setOnClickListener {
@@ -67,8 +67,10 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             val totalTimeLabel: TextView = itemView.findViewById(R.id.totalTimeLabel)
             val actions: ImageView = itemView.findViewById(R.id.actions)
             val positionBar: SeekBar = itemView.findViewById(R.id.positionBar)
-            val playBtn: SeekBar = itemView.findViewById(R.id.playBtn)
+            val playBtn: Button = itemView.findViewById(R.id.playBtn)
+
             name.text = audioItem.title
+            print("!!!!LOOK  "+audioItem.title)
             elapsedTimeLabel.text = createTimeLabel(0)
             totalTimeLabel.text= createTimeLabel(audioItem.duration)
           //  rating.rating = deadlineItem.importance.toFloat()

@@ -1,9 +1,14 @@
 package com.example.voiceversa
 
-class Audio constructor(title_: String = "новое аудио", source_: String = "recording",
-                        duration_: Int = 0) {
+import android.os.Build
+import androidx.annotation.RequiresApi
+import java.time.Instant
+import java.util.*
 
-    var title: String = "новое аудио"
+class Audio @RequiresApi(Build.VERSION_CODES.O) constructor(title_: String = "новое аудио", source_: String = "recording",
+                                                            duration_: Int = 0, date_: Date = Date.from(Instant.now()) ) {
+
+    var title: String  = "новое аудио"
         get() {
             return field
         }
@@ -29,5 +34,19 @@ class Audio constructor(title_: String = "новое аудио", source_: Strin
             field = value
         }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    var date: Date = Date.from(Instant.now())
+        get() {
+            return field
+        }
+        set(value) {
+            field = value
+        }
 
+    init {
+        title = title_
+        duration = duration_
+        source = source_
+        date = date_
+    }
 }

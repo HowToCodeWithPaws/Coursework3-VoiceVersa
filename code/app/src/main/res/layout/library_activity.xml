@@ -20,7 +20,7 @@
                 android:layout_marginLeft="4dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sort_spinner"
                 tools:listitem="@layout/list_item" />
 
         <Spinner
@@ -35,6 +35,7 @@
             app:iconPadding="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

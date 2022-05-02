@@ -1,13 +1,19 @@
 package com.example.voiceversa
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import java.time.Instant
 import java.util.*
 
+lateinit var user:User
+
 class AuthActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -25,6 +31,13 @@ class AuthActivity : AppCompatActivity() {
 
         log_in_button.setOnClickListener {
             //TODO проверОчка на сервере
+
+            var array = ArrayList<Audio>()
+            array.add(Audio("h1eeeeeee", "recording", 23, Date.from(Instant.now())))
+            array.add(Audio("t2eeee", "recording", 23, Date(0)))
+            array.add(Audio("geeeeeeeee3", "result", 32, Date.from(Instant.now())))
+
+            user = User("hii", "df", array)
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }
