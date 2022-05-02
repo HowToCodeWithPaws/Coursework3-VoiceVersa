@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/item_background"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/audio_name"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/voice"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/playBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/play"
+        app:layout_constraintStart_toStartOf="@id/audio_name"
+        app:layout_constraintTop_toBottomOf="@id/audio_name" />
+
+    <SeekBar
+        android:id="@+id/positionBar"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/playBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toEndOf="@id/playBtn" />
+
+    <ImageView
+        android:id="@+id/actions"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/positionBar"
+        app:layout_constraintStart_toEndOf="@id/positionBar"
+        app:srcCompat="@drawable/vertical" />
+
+
+    <TextView
+        android:id="@+id/elapsedTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:text="@string/elapsedTime"
+        app:layout_constraintStart_toStartOf="@id/positionBar"
+        app:layout_constraintTop_toBottomOf="@id/positionBar" />
+
+    <TextView
+        android:id="@+id/totalTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/totalTime"
+        app:layout_constraintEnd_toEndOf="@id/positionBar"
+        app:layout_constraintTop_toBottomOf="@id/positionBar"
+        tools:layout_editor_absoluteX="321dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
