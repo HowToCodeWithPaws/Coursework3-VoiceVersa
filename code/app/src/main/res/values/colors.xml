@@ -4,6 +4,7 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="black">#FF000000</color>
+    <color name="darkGray">#1F1F1F</color>
     <color name="white">#FFFFFFFF</color>
     <color name="lightBackground">#EEF1EE</color>
     <color name="primaryColor">#f3b9b9</color>
