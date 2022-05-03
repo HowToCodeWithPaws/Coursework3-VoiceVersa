@@ -17,6 +17,18 @@ class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        var array = ArrayList<Audio>()
+
+        var path1 = this.externalCacheDir!!.absolutePath + "/saved/saved_1.mp3"
+        var path2 = this.externalCacheDir!!.absolutePath + "/saved/saved_2.mp3"
+        var path3 = this.externalCacheDir!!.absolutePath + "/saved/saved_result_3.mp3"
+        array.add(Audio("saved_1", "recording",path1, 23, Date.from(Instant.now())))
+        array.add(Audio("saved_2", "recording",path2, 24, Date(0)))
+        array.add(Audio("saved_result_3", "result",path3, 32, Date.from(Instant.now())))
+
+        user = User("hii", "df", array)
+
+
         setContentView(R.layout.activity_auth)
         Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"
 
@@ -32,12 +44,7 @@ class AuthActivity : AppCompatActivity() {
         log_in_button.setOnClickListener {
             //TODO проверОчка на сервере
 
-            var array = ArrayList<Audio>()
-            array.add(Audio("h1eeeeeee", "recording", 23, Date.from(Instant.now())))
-            array.add(Audio("t2eeee", "recording", 23, Date(0)))
-            array.add(Audio("geeeeeeeee3", "result", 32, Date.from(Instant.now())))
 
-            user = User("hii", "df", array)
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }

@@ -1,16 +1,25 @@
 package com.example.voiceversa
 
+import android.annotation.SuppressLint
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 class AudiosListAdapter(private val audios: ArrayList<Audio>) :
     RecyclerView.Adapter<AudiosListAdapter.ListViewHolder>() {
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
 
         var view: View =
@@ -36,13 +45,21 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
     class ListViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
 
+
+        private var audioPlayer: MediaPlayer? = null
+
         @RequiresApi(Build.VERSION_CODES.O)
-       var audio: Audio = Audio()
+        var audio: Audio = Audio()
+        val positionBar: SeekBar = itemView.findViewById(R.id.positionBar)
+        val playBtn: Button = itemView.findViewById(R.id.playBtn)
+        lateinit var elapsedTimeLabel: TextView
+        private var totalTime: Int = 0
+        lateinit var totalTimeLabel: TextView
 
         init {
-           // itemView.setOnClickListener {
-         //       openDeadlineScreenEdit(audio)
-            //}
+//             itemView.setOnClickListener {
+//                   openDeadlineScreenEdit(audio)
+//            }
         }
 
         fun createTimeLabel(time: Int): String {
@@ -61,28 +78,83 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         fun bind(audioItem: Audio) {
 
             audio = audioItem
-           // val rating: RatingBar = itemView.findViewById(R.id.ratingBar)
             val name: TextView = itemView.findViewById(R.id.audio_name)
-            val elapsedTimeLabel: TextView = itemView.findViewById(R.id.elapsedTimeLabel)
-            val totalTimeLabel: TextView = itemView.findViewById(R.id.totalTimeLabel)
+             elapsedTimeLabel = itemView.findViewById(R.id.elapsedTimeLabel)
+             totalTimeLabel = itemView.findViewById(R.id.totalTimeLabel)
             val actions: ImageView = itemView.findViewById(R.id.actions)
-            val positionBar: SeekBar = itemView.findViewById(R.id.positionBar)
-            val playBtn: Button = itemView.findViewById(R.id.playBtn)
+
+
+            val date: TextView = itemView.findViewById(R.id.date)
+            val pattern = "dd.MM.yyyy HH:mm"
+            val simpleDateFormat = SimpleDateFormat(pattern)
+            val formattedDate: String = simpleDateFormat.format(audioItem.date)
+
+           date.text = formattedDate
+            print("!!!!LOOK "+ formattedDate)
 
             name.text = audioItem.title
-            print("!!!!LOOK  "+audioItem.title)
             elapsedTimeLabel.text = createTimeLabel(0)
-            totalTimeLabel.text= createTimeLabel(audioItem.duration)
-          //  rating.rating = deadlineItem.importance.toFloat()
+            totalTimeLabel.text = createTimeLabel(audioItem.duration)
 
-          //  val date: TextView = itemView.findViewById(R.id.date)
-          //  val deadline: TextView = itemView.findViewById(R.id.deadline)
-          //  var formattedDate = deadlineItem.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-          //  var formattedDeadline =
-          //      deadlineItem.deadline.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-
+            getPlayableAudio()
+            playBtn.setOnClickListener { playBtnClick(itemView) }
         }
 
+        fun playBtnClick(view: View) {
+            if (audioPlayer?.isPlaying == true) {
+                audioPlayer!!.pause()
+                playBtn.setBackgroundResource(R.drawable.play)
+
+            } else {
+                audioPlayer?.start()
+                playBtn.setBackgroundResource(R.drawable.stop)
+            }
+        }
+
+        private fun getPlayableAudio() {
+            var resURL = Uri.parse(audio.url)
+            audioPlayer = MediaPlayer.create(itemView.context, resURL)
+            audioPlayer?.isLooping = false
+            audioPlayer?.setVolume(0.5f, 0.5f)
+            totalTime = audioPlayer?.duration!!
+            totalTimeLabel.text = createTimeLabel(totalTime)
+
+            positionBar.max = totalTime
+            positionBar.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        if (fromUser) {
+                            audioPlayer?.seekTo(progress)
+                        }
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                    }
+                }
+            )
+
+            // Thread
+            Thread(Runnable {
+                while (audioPlayer != null) {
+                    try {
+                        var msg = Message()
+                        msg.what = audioPlayer?.currentPosition!!
+                        handlerAudio.sendMessage(msg)
+                        Thread.sleep(1000)
+                    } catch (e: InterruptedException) {
+                    }
+                }
+            }).start()
+
+            playBtn.isEnabled = true
+        }
 
 //        fun openDeadlineScreenEdit(deadline: Audio) {
 //            deadlineToEdit = deadline
@@ -91,5 +163,23 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
 //            intent.putExtra("deadline", deadline)
 //            parentActivityList.startActivity(intent)
 //        }
+
+        @SuppressLint("HandlerLeak")
+        var handlerAudio = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                var currentPosition = msg.what
+
+                // Update positionBar
+                positionBar.progress = currentPosition
+
+                // Update Labels
+                var elapsedTime = createTimeLabel(currentPosition)
+                elapsedTimeLabel.text = elapsedTime
+                if (elapsedTime == createTimeLabel(totalTime)) {
+                    playBtn.setBackgroundResource(R.drawable.play)
+                }
+            }
+        }
+
     }
 }
