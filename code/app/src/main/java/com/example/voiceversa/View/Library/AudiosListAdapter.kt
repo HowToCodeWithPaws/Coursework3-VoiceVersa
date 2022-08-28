@@ -1,4 +1,4 @@
-package com.example.voiceversa
+package com.example.voiceversa.View.Library
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
@@ -12,7 +12,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
-import java.text.DateFormat
+import com.example.voiceversa.Model.Audio
+import com.example.voiceversa.R
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -56,11 +57,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         private var totalTime: Int = 0
         lateinit var totalTimeLabel: TextView
 
-        init {
-//             itemView.setOnClickListener {
-//                   openDeadlineScreenEdit(audio)
-//            }
-        }
+        init {}
 
         fun createTimeLabel(time: Int): String {
             var timeLabel = ""
@@ -90,7 +87,6 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             val formattedDate: String = simpleDateFormat.format(audioItem.date)
 
            date.text = formattedDate
-            print("!!!!LOOK "+ formattedDate)
 
             name.text = audioItem.title
             elapsedTimeLabel.text = createTimeLabel(0)
@@ -155,14 +151,6 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
 
             playBtn.isEnabled = true
         }
-
-//        fun openDeadlineScreenEdit(deadline: Audio) {
-//            deadlineToEdit = deadline
-//            userToEdit = userList
-//            val intent = Intent(parentActivityList, DeadlineEditActivity::class.java)
-//            intent.putExtra("deadline", deadline)
-//            parentActivityList.startActivity(intent)
-//        }
 
         @SuppressLint("HandlerLeak")
         var handlerAudio = object : Handler() {

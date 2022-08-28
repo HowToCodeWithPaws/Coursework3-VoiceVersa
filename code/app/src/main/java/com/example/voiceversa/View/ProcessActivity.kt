@@ -1,4 +1,4 @@
-package com.example.voiceversa
+package com.example.voiceversa.View.Settings
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -17,10 +17,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.voiceversa.AccountActivity
+import com.example.voiceversa.Controller.Controller
+import com.example.voiceversa.Controller.makeDirectories
+import com.example.voiceversa.Controller.readAudioNames
+import com.example.voiceversa.R
+import com.example.voiceversa.controller
+import java.io.File
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
-
 
 class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemSelectedListener {
@@ -49,13 +55,12 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     private var totalTimeVoice: Int = 0
 
     private var processed: Boolean = false
-    private var outputPath: String? = null
-    private var resultPath: String? = null
-    private var voicesPath: String? = null
     private var mediaRecorder: MediaRecorder? = null
     private var state: Boolean = false
     private var recordingStopped: Boolean = false
     private var chosenRec: String? = null
+    private var voice: String = ""
+
 
     @RequiresApi(31)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,19 +89,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         elapsedTimeLabelRes = findViewById<TextView>(R.id.elapsedTimeLabelRes)
         totalTimeLabelRec = findViewById<TextView>(R.id.totalTimeLabelRec)
         totalTimeLabelRes = findViewById<TextView>(R.id.totalTimeLabelRes)
-
+        actionsRec = findViewById(R.id.actionsRec)
+        actionsRes = findViewById(R.id.actionsRes)
 
         playRecBtn.isEnabled = false
         playResBtn.isEnabled = false
+        actionsRec.isEnabled = false
+        actionsRes.isEnabled = false
+
+        processBtn.isEnabled = false
 
         startRecBtn = findViewById(R.id.startRecBtn)
         pauseRecBtn = findViewById(R.id.pauseRecBtn)
-
-        outputPath = this.externalCacheDir!!.absolutePath + "/recording.mp3"
-        resultPath = this.externalCacheDir!!.absolutePath + "/result.mp3"
-        voicesPath = this.externalCacheDir!!.absolutePath + "/voices"
-
-
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -140,13 +144,16 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         attachRecBtn.setOnClickListener(this)
 
         var adapterVoices =
-            ArrayAdapter(this, android.R.layout.simple_spinner_item, readVoices())
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                readAudioNames(controller.voicesPath)
+            )
         adapterVoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         voiceSpinner.adapter = adapterVoices
         voiceSpinner.onItemSelectedListener = this
 
 
-        actionsRec = findViewById(R.id.actionsRec)
         actionsRec.setOnClickListener {
             val menu = PopupMenu(this, it)
             menu.setOnMenuItemClickListener { item ->
@@ -170,12 +177,9 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             }
             menu.inflate(R.menu.actions_menu)
 
-        //    menu.setForceShowIcon(true)
-
-        menu.show()
+            menu.show()
         }
 
-        actionsRes = findViewById(R.id.actionsRes)
         actionsRes.setOnClickListener {
             val menu = PopupMenu(this, it)
             menu.setOnMenuItemClickListener { item ->
@@ -197,20 +201,12 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     }
                 }
             }
-                menu.show()
-
+            menu.inflate(R.menu.actions_menu)
+            menu.show()
         }
 
     }
 
-    private fun readVoices(): ArrayList<String> {
-        ///todo reading from voicesPath
-        var voicesNames: ArrayList<String> = ArrayList()
-        voicesNames.add("Andrey")
-        voicesNames.add("OtherAndrey")
-        voicesNames.add("unbearable")
-        return voicesNames
-    }
 
     override fun onClick(v: View?) {
         val intent = Intent()
@@ -225,6 +221,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             if (resultCode == RESULT_OK) {
                 chosenRec = (data?.data!!).toString()
                 Toast.makeText(this, "You chose the audio $chosenRec", Toast.LENGTH_SHORT).show()
+            // TODO    File(chosenRec).copyTo(File(controller.homePath+"/recording.mp3"), overwrite = true)
                 getPlayableRecording()
             } else {
                 Toast.makeText(this, "You need to choose the audio!", Toast.LENGTH_SHORT).show()
@@ -238,7 +235,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        mediaRecorder?.setOutputFile(outputPath)
+        mediaRecorder?.setOutputFile(controller.recordingPath)
         mediaRecorder?.prepare()
     }
 
@@ -248,7 +245,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             mediaRecorder?.release()
             state = false
             Toast.makeText(this, "Recording stopped!", Toast.LENGTH_SHORT).show()
-            chosenRec = outputPath
+            chosenRec = controller.recordingPath
             startRecBtn.setBackgroundResource(R.drawable.mic)
             getPlayableRecording()
         } else {
@@ -406,6 +403,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
 
         playRecBtn.isEnabled = true
+        actionsRec.isEnabled = true
+        processBtn.isEnabled = true
     }
 
 
@@ -421,7 +420,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun getPlayableResult() {
-        var resURL = Uri.parse(resultPath)
+        var resURL = Uri.parse(controller.resultPath)
         resPlayer = MediaPlayer.create(this, resURL)
         resPlayer?.isLooping = false
         resPlayer?.setVolume(0.5f, 0.5f)
@@ -463,11 +462,12 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }).start()
 
         playResBtn.isEnabled = true
+        actionsRes.isEnabled = true
     }
 
 
     fun process(view: View) {
-        //TODO
+        controller.process(voice)
         processed = true
         Toast.makeText(this, "Your audio was processed!", Toast.LENGTH_SHORT).show()
         getPlayableResult()
@@ -485,7 +485,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun getPlayableVoice() {
-        var voicePath = voicesPath + "/" + voiceSpinner.selectedItem as String + ".mp3"
+        voice = voiceSpinner.selectedItem as String
+        var voicePath = controller.voicesPath + "/" + voice + ".mp3"
         var resURL = Uri.parse(voicePath)
         voicePlayer = MediaPlayer.create(this, resURL)
         voicePlayer?.isLooping = false

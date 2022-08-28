@@ -1,7 +1,8 @@
-package com.example.voiceversa
+package com.example.voiceversa.View.Settings
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.voiceversa.R
 import java.util.*
 
 class SettingsActivity : AppCompatActivity() {

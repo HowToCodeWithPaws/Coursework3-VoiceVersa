@@ -1,4 +1,4 @@
-package com.example.voiceversa
+package com.example.voiceversa.Model
 
 import android.os.Build
 import androidx.annotation.RequiresApi

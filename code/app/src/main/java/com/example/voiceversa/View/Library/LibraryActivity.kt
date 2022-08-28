@@ -1,4 +1,4 @@
-package com.example.voiceversa
+package com.example.voiceversa.View.Library
 
 import android.os.Bundle
 import android.view.View
@@ -6,12 +6,11 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.voiceversa.R
 import java.util.*
 
 class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener {
 
-    //private var _binding: LibraryActivityBinding? = null
-    //private val binding get() = _binding!!
     private var listList = ArrayList<ListForRV>()
     private lateinit var nestedListAdapter: NestedListAdapter
     lateinit var rvList: RecyclerView
@@ -20,12 +19,9 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
 
-        //_binding = LibraryActivityBinding.inflate(layoutInflater)
-
        setContentView(R.layout.activity_library)
         Objects.requireNonNull(supportActionBar)!!.title = "Библиотека"
 
-   //     listList = ArrayList()
          nestedListAdapter = NestedListAdapter(listList)
         rvList = findViewById<RecyclerView>(R.id.rv_list)
 
@@ -40,20 +36,9 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
         sortSpinner = findViewById<Spinner>(R.id.sort_spinner)
         sortSpinner.adapter = adapter
         sortSpinner.onItemSelectedListener = this
+
         refresh("По названию")
-
-
-        ///todo find audios
-        ///todo tune filters and lists
-
-        //return binding.root
     }
-
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        _binding = null
-//    }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         refresh(sortSpinner.selectedItem as String)
@@ -65,10 +50,7 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
 
     fun refresh(sort:String){
         listList = ArrayList()
-        //listList.add()
         rvList.layoutManager = LinearLayoutManager(this)
-
-
         nestedListAdapter = NestedListAdapter(listList)
         rvList.adapter = nestedListAdapter
 
@@ -78,7 +60,6 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
         val listResults = ListForRV(
             "Сохраненные результаты", false,  sort
         )
-
 
         listList.add(listRecordings)
         listList.add(listResults)

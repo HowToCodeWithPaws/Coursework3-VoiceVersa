@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.example.voiceversa.View.Library.LibraryActivity
+import com.example.voiceversa.View.Request.RequestActivity
+import com.example.voiceversa.View.Settings.SettingsActivity
 import java.util.*
 
 
@@ -14,7 +17,7 @@ class AccountActivity : AppCompatActivity() {
 //TODO сделать красивое??
         setContentView(R.layout.activity_account)
 
-        Objects.requireNonNull(supportActionBar)!!.title = "личный кабинет"
+        Objects.requireNonNull(supportActionBar)!!.title = "Личный кабинет"
         val library_button = findViewById<Button>(R.id.library)
         val settings_button = findViewById<Button>(R.id.settings)
         val request_button = findViewById<Button>(R.id.request)

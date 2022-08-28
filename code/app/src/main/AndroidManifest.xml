@@ -26,26 +26,26 @@
             <action android:name="android.intent.action.Account"/>
         </intent-filter>
     </activity>
-        <activity android:name=".SettingsActivity"
+        <activity android:name=".View.Settings.SettingsActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Settings" />
             </intent-filter>
         </activity>
-        <activity android:name=".RequestActivity"
+        <activity android:name=".View.Request.RequestActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Request" />
             </intent-filter>
         </activity>
-        <activity android:name=".LibraryActivity"
+        <activity android:name=".View.Library.LibraryActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Library" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ProcessActivity"
+        <activity android:name=".View.Settings.ProcessActivity"
             android:exported = "true">
             <intent-filter>
                 <action android:name="android.intent.action.Process"/>
