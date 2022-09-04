@@ -95,6 +95,7 @@ class Controller(homePath_ : String = "empty") {
 
     fun process(voice: String){
         //TODO: server process audio than save new one
+        // input: chosen voice + recordingPath
         File(controller.homePath+"/recording.mp3").copyTo(File(controller.homePath + "/result.mp3"), overwrite = true)
     }
 }

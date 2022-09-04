@@ -136,7 +136,6 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
                 }
             )
 
-            // Thread
             Thread(Runnable {
                 while (audioPlayer != null) {
                     try {

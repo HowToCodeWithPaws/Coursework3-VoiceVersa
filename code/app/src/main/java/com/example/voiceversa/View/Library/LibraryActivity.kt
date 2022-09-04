@@ -1,12 +1,18 @@
 package com.example.voiceversa.View.Library
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.voiceversa.Controller.readAudioNames
+import com.example.voiceversa.Model.Audio
 import com.example.voiceversa.R
+import com.example.voiceversa.controller
+import com.example.voiceversa.user
 import java.util.*
 
 class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener {
@@ -16,8 +22,19 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
     lateinit var rvList: RecyclerView
     lateinit var sortSpinner: Spinner
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
+
+        var names: ArrayList<String> = readAudioNames(controller.savedPath)
+        var array = ArrayList<Audio>()
+
+        for (name in names) {
+            var origin = if (name.contains("recording")) "recording" else "result"
+            array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))
+        }
+
+        user.audios = array
 
        setContentView(R.layout.activity_library)
         Objects.requireNonNull(supportActionBar)!!.title = "Библиотека"

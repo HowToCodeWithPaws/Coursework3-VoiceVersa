@@ -18,15 +18,18 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.voiceversa.AccountActivity
-import com.example.voiceversa.Controller.Controller
-import com.example.voiceversa.Controller.makeDirectories
 import com.example.voiceversa.Controller.readAudioNames
 import com.example.voiceversa.R
 import com.example.voiceversa.controller
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.channels.FileChannel
+import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
-import kotlin.collections.ArrayList
+
 
 class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemSelectedListener {
@@ -143,11 +146,14 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         attachRecBtn.setOnClickListener(this)
 
-        var adapterVoices =
+        val voices = readAudioNames(controller.voicesPath)
+        if (voices.isEmpty()) playVoiceBtn.isEnabled = false
+
+        val adapterVoices =
             ArrayAdapter(
                 this,
                 android.R.layout.simple_spinner_item,
-                readAudioNames(controller.voicesPath)
+                voices
             )
         adapterVoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         voiceSpinner.adapter = adapterVoices
@@ -163,7 +169,27 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                         true
                     }
                     R.id.add -> {
-                        //todo add
+                        try {
+                            val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
+                            val currentDate = sdf.format(Date())
+                            File(controller.homePath + "/recording.mp3").copyTo(
+                                File(controller.savedPath + "/recording" + currentDate + ".mp3"),
+                                overwrite = false
+                            )
+                            Toast.makeText(
+                                this,
+                                "Запись добавлена в библиотеку",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }catch (e: Exception){
+                            println("Exception while adding recording")
+                            e.printStackTrace()
+                            Toast.makeText(
+                                this,
+                                "Не удалось добавить запись в библиотеку, попробуйте в другой раз!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         true
                     }
                     R.id.share -> {
@@ -186,10 +212,31 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 when (item.itemId) {
                     R.id.download -> {
                         //TODO download
+
                         true
                     }
                     R.id.add -> {
-                        //todo add
+                        try {
+                            val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
+                            val currentDate = sdf.format(Date())
+                            File(controller.homePath + "/result.mp3").copyTo(
+                                File(controller.savedPath + "/result" + currentDate + ".mp3"),
+                                overwrite = false
+                            )
+                            Toast.makeText(
+                                this,
+                                "Результат добавлен в библиотеку",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }catch (e: Exception){
+                            println("Exception while adding result")
+                            e.printStackTrace()
+                            Toast.makeText(
+                                this,
+                                "Не удалось добавить результат в библиотеку, попробуйте в другой раз!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         true
                     }
                     R.id.share -> {
@@ -212,22 +259,60 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         val intent = Intent()
         intent.type = "audio/*"
         intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select audio"), 1)
+        startActivityForResult(Intent.createChooser(intent, "Выбор аудиофайла"), 1)
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                chosenRec = (data?.data!!).toString()
-                Toast.makeText(this, "You chose the audio $chosenRec", Toast.LENGTH_SHORT).show()
-            // TODO    File(chosenRec).copyTo(File(controller.homePath+"/recording.mp3"), overwrite = true)
+                try{
+                val uri: Uri = data?.getData()!!
+                val src = uri.path!!
+
+                var subsrc = ""
+                if(src.contains("storage")){
+                     subsrc = src.subSequence(src.indexOf("storage")-1, src.length).toString()
+                }else if(src.contains("primary")){
+                    subsrc = src.subSequence(src.indexOf("primary")+8, src.length).toString()
+                    subsrc = "/storage/emulated/0/" + subsrc
+                }
+                val source: File = File(subsrc).absoluteFile
+                val destination = File(controller.homePath+"/recording.mp3")
+
+                copy(source, destination)
+                Toast.makeText(this, "Вы выбрали аудио $subsrc", Toast.LENGTH_SHORT).show()
                 getPlayableRecording()
+                }
+                catch(e: Exception){
+                    println("Error in getting file ")
+                    e.printStackTrace()
+                    Toast.makeText(this, "Не вышло открыть аудиозапись! Попробуйте открыть другой файл.", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                Toast.makeText(this, "You need to choose the audio!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Пожалуйста, выберите аудиозапись!", Toast.LENGTH_SHORT).show()
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun copy( source: File,  destination:File) {
+
+        var inp : FileChannel =  FileInputStream(source).getChannel()
+        var out : FileChannel=  FileOutputStream(destination).getChannel()
+
+        try {
+            inp.transferTo(0, inp.size(), out);
+        } catch( e:Exception){
+            println("Error in copying the file\n")
+            e.printStackTrace()
+        } finally {
+            if (inp != null)
+            inp.close();
+            if (out != null)
+                out.close();
+        }
     }
 
     private fun mediarecorderInit() {
@@ -244,8 +329,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             mediaRecorder?.stop()
             mediaRecorder?.release()
             state = false
-            Toast.makeText(this, "Recording stopped!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Аудиозапись закончена", Toast.LENGTH_SHORT).show()
             chosenRec = controller.recordingPath
+            pauseRecBtn.setBackgroundResource(R.drawable.stop)
+            recordingStopped = false
             startRecBtn.setBackgroundResource(R.drawable.mic)
             getPlayableRecording()
         } else {
@@ -254,7 +341,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 mediaRecorder?.start()
                 state = true
                 playRecBtn.isEnabled = false
-                Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Аудиозапись начата", Toast.LENGTH_SHORT).show()
                 startRecBtn.setBackgroundResource(R.drawable.finish)
             } catch (e: IllegalStateException) {
                 e.printStackTrace()
@@ -271,7 +358,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     private fun pauseRecording() {
         if (state) {
             if (!recordingStopped) {
-                Toast.makeText(this, "Paused!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Аудиозапись приостановлена", Toast.LENGTH_SHORT).show()
                 mediaRecorder?.pause()
                 recordingStopped = true
                 pauseRecBtn.setBackgroundResource(R.drawable.play)
@@ -284,7 +371,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @SuppressLint("RestrictedApi", "SetTextI18n")
     @TargetApi(Build.VERSION_CODES.N)
     private fun resumeRecording() {
-        Toast.makeText(this, "Resume!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Аудиозапись продолжена", Toast.LENGTH_SHORT).show()
         mediaRecorder?.resume()
         pauseRecBtn.setBackgroundResource(R.drawable.stop)
         recordingStopped = false
@@ -295,10 +382,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         override fun handleMessage(msg: Message) {
             var currentPosition = msg.what
 
-            // Update positionBar
             positionRecBar.progress = currentPosition
 
-            // Update Labels
             var elapsedTime = createTimeLabel(currentPosition)
             elapsedTimeLabelRec.text = elapsedTime
             if (elapsedTime == createTimeLabel(totalTime)) {
@@ -312,10 +397,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         override fun handleMessage(msg: Message) {
             var currentPosition = msg.what
 
-            // Update positionBar
             positionResBar.progress = currentPosition
 
-            // Update Labels
             var elapsedTime = createTimeLabel(currentPosition)
             elapsedTimeLabelRes.text = elapsedTime
             if (elapsedTime == createTimeLabel(totalTimeRes)) {
@@ -360,7 +443,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun getPlayableRecording() {
-        var recURL = Uri.parse(chosenRec)
+        var recURL = Uri.parse(controller.recordingPath)
         recPlayer = MediaPlayer.create(this, recURL)
         recPlayer?.isLooping = false
         recPlayer?.setVolume(0.5f, 0.5f)
@@ -388,7 +471,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             }
         )
 
-        // Thread
         Thread(Runnable {
             while (recPlayer != null) {
                 try {
@@ -469,7 +551,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     fun process(view: View) {
         controller.process(voice)
         processed = true
-        Toast.makeText(this, "Your audio was processed!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
         getPlayableResult()
     }
 

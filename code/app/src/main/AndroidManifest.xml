@@ -3,52 +3,62 @@
     package="com.example.voiceversa">
 
 
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+
         >
 
-    <activity android:name=".AuthActivity"
-        android:exported = "true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
-        <activity android:name=".AccountActivity"
-        android:exported = "true">
-        <intent-filter>
-            <action android:name="android.intent.action.Account"/>
-        </intent-filter>
-    </activity>
-        <activity android:name=".View.Settings.SettingsActivity"
-            android:exported = "true">
+        <activity
+            android:name=".AuthActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AccountActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.Account" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".View.Settings.SettingsActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Settings" />
             </intent-filter>
         </activity>
-        <activity android:name=".View.Request.RequestActivity"
-            android:exported = "true">
+        <activity
+            android:name=".View.Request.RequestActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Request" />
             </intent-filter>
         </activity>
-        <activity android:name=".View.Library.LibraryActivity"
-            android:exported = "true">
+        <activity
+            android:name=".View.Library.LibraryActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Library" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".View.Settings.ProcessActivity"
-            android:exported = "true">
+        <activity
+            android:name=".View.Settings.ProcessActivity"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.Process"/>
+                <action android:name="android.intent.action.Process" />
             </intent-filter>
         </activity>
 

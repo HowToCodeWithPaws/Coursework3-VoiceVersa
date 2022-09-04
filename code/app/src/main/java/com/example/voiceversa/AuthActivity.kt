@@ -27,19 +27,11 @@ class AuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         var home = this.externalMediaDirs!![0]!!.absolutePath
+        println("\n\nhere "+home)
         controller = Controller(home)
+        println("\n\n\ncontroller "+ controller.savedPath)
 
-        var names: ArrayList<String> = readAudioNames(controller.savedPath)
-        var array = ArrayList<Audio>()
-
-        for (name in names) {
-            var origin = if (name.contains("recording")) "recording" else "result"
-            array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))
-        }
-
-
-        user = User("hii", "df", array)
-
+        user = User("hii", "df")
 
         setContentView(R.layout.activity_auth)
         Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"
