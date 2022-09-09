@@ -1,6 +1,8 @@
 package com.example.voiceversa.View.Library
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -11,22 +13,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.example.voiceversa.BuildConfig
 import com.example.voiceversa.Model.Audio
 import com.example.voiceversa.R
+import com.example.voiceversa.controller
+import com.example.voiceversa.user
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class AudiosListAdapter(private val audios: ArrayList<Audio>) :
     RecyclerView.Adapter<AudiosListAdapter.ListViewHolder>() {
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
 
         var view: View =
             LayoutInflater.from(parent.context).inflate(R.layout.audio_item, parent, false)
 
-        return ListViewHolder(view)
+        return ListViewHolder(view,this, audios )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -43,9 +50,8 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         return audios[position];
     }
 
-    class ListViewHolder(itemView: View) :
+    class ListViewHolder(itemView: View, var parentAdapter: AudiosListAdapter, var audios: ArrayList<Audio>) :
         RecyclerView.ViewHolder(itemView) {
-
 
         private var audioPlayer: MediaPlayer? = null
 
@@ -56,7 +62,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         lateinit var elapsedTimeLabel: TextView
         private var totalTime: Int = 0
         lateinit var totalTimeLabel: TextView
-
+        private val menuButton = itemView.findViewById<ImageView>(R.id.actions)
         init {}
 
         fun createTimeLabel(time: Int): String {
@@ -78,8 +84,6 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             val name: TextView = itemView.findViewById(R.id.audio_name)
              elapsedTimeLabel = itemView.findViewById(R.id.elapsedTimeLabel)
              totalTimeLabel = itemView.findViewById(R.id.totalTimeLabel)
-            val actions: ImageView = itemView.findViewById(R.id.actions)
-
 
             val date: TextView = itemView.findViewById(R.id.date)
             val pattern = "dd.MM.yyyy HH:mm"
@@ -94,6 +98,95 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
 
             getPlayableAudio()
             playBtn.setOnClickListener { playBtnClick(itemView) }
+
+            menuButton.setOnClickListener {
+                val menu = PopupMenu(controller.context, it)
+                menu.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.delete -> {
+                            try {
+                                var index = audios.indexOf(audio)
+                                audios.removeAt(index)
+                                user.audios.remove(audio)
+                                val file = File(audio.url)
+                                val uri = FileProvider.getUriForFile(
+                                    controller.context!!,
+                                    BuildConfig.APPLICATION_ID + ".provider", file)
+
+                                val contentResolver: ContentResolver =
+                                    controller.context!!.getContentResolver()
+                                contentResolver.delete(uri, null, null)
+                                Toast.makeText(
+                                    controller.context,
+                                    "Аудио удалено",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                parentAdapter.notifyItemRemoved(index)
+                                parentAdapter.notifyItemRangeChanged(position, audios.size);
+                            } catch (e: Exception) {
+                                println("Exception while deleting audio")
+                                e.printStackTrace()
+                                Toast.makeText(
+                                    controller.context,
+                                    "Не удалось удалить аудио из библиотеки, попробуйте в другой раз!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            true
+                        }
+                        R.id.download -> {
+                            try{
+                                controller.downloadAudio(audio.url, audio.title+".mp3")
+                                Toast.makeText(
+                                    controller.context,
+                                    "Аудио сохранено в загрузки",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            catch (e: Exception){
+                                println("Exception while saving audio")
+                                e.printStackTrace()
+                                Toast.makeText(
+                                    controller.context,
+                                    "Не удалось сохранить аудио в загрузки, попробуйте в другой раз!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            true
+                        }
+                        R.id.share -> {
+                            try {
+                                val file = File(audio.url)
+                                if(file.exists()) {
+                                    val uri = FileProvider.getUriForFile(controller.context!!, BuildConfig.APPLICATION_ID + ".provider", file)
+                                    val intent = Intent(Intent.ACTION_SEND)
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    intent.setType("audio/mp3")
+                                    intent.putExtra(Intent.EXTRA_STREAM, uri)
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                   controller.context!!.startActivity(intent)
+                                }
+                            }  catch (e: Exception){
+                                println("Exception while sharing audio")
+                                e.printStackTrace()
+                                Toast.makeText(
+                                    controller.context,
+                                    "Не удалось отправить аудио, попробуйте в другой раз!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            true
+                        }
+                        else -> {
+                            false
+                        }
+                    }
+                }
+                menu.inflate(R.menu.library_actions_menu)
+
+                menu.show()
+            }
         }
 
         fun playBtnClick(view: View) {

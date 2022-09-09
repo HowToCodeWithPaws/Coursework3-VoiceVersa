@@ -25,13 +25,14 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
+controller.context = this
 
         var names: ArrayList<String> = readAudioNames(controller.savedPath)
         var array = ArrayList<Audio>()
 
         for (name in names) {
             var origin = if (name.contains("recording")) "recording" else "result"
-            array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))
+            array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
         }
 
         user.audios = array

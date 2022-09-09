@@ -17,14 +17,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.example.voiceversa.AccountActivity
+import com.example.voiceversa.BuildConfig
 import com.example.voiceversa.Controller.readAudioNames
 import com.example.voiceversa.R
 import com.example.voiceversa.controller
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -165,7 +164,28 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             menu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.download -> {
-                        //TODO download
+                        try{
+                        val now = Date.from(Instant.now())
+                        val formatterDate = SimpleDateFormat("dd.MM.yyyy")
+                        val formatterTime = SimpleDateFormat("HH:mm")
+                        val filename = "VoiceVersa_Recording_" +
+                                formatterDate.format(now) + "_" + formatterTime.format(now) +".mp3"
+                        controller.downloadAudio(controller.recordingPath, filename)
+                            Toast.makeText(
+                                this,
+                                "Запись сохранена в загрузки",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        catch (e: Exception){
+                            println("Exception while saving recording")
+                            e.printStackTrace()
+                            Toast.makeText(
+                                this,
+                                "Не удалось сохранить запись в загрузки, попробуйте в другой раз!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         true
                     }
                     R.id.add -> {
@@ -181,7 +201,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                                 "Запись добавлена в библиотеку",
                                 Toast.LENGTH_SHORT
                             ).show()
-                        }catch (e: Exception){
+                        } catch (e: Exception) {
                             println("Exception while adding recording")
                             e.printStackTrace()
                             Toast.makeText(
@@ -193,7 +213,26 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                         true
                     }
                     R.id.share -> {
-                        //todo share
+                        try {
+                            val file = File(controller.recordingPath)
+                            if(file.exists()) {
+                                val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
+                                val intent = Intent(Intent.ACTION_SEND)
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                intent.setType("audio/mp3")
+                                intent.putExtra(Intent.EXTRA_STREAM, uri)
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent)
+                            }
+                        }  catch (e: Exception){
+                                println("Exception while sharing recording")
+                                e.printStackTrace()
+                                Toast.makeText(
+                                    this,
+                                    "Не удалось отправить запись, попробуйте в другой раз!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                        }
                         true
                     }
                     else -> {
@@ -211,8 +250,27 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             menu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.download -> {
-                        //TODO download
-
+                        try{
+                        val now = Date.from(Instant.now())
+                        val formatterDate = SimpleDateFormat("dd.MM.yyyy")
+                        val formatterTime = SimpleDateFormat("HH:mm")
+                        val filename = "VoiceVersa_Result_" +
+                            formatterDate.format(now) + "_" + formatterTime.format(now) +".mp3"
+                       controller.downloadAudio(controller.resultPath, filename)
+                            Toast.makeText(
+                                this,
+                                "Результат сохранен в загрузки",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (e: Exception){
+                            println("Exception while saving result")
+                            e.printStackTrace()
+                            Toast.makeText(
+                                this,
+                                "Не удалось сохранить результат в загрузки, попробуйте в другой раз!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         true
                     }
                     R.id.add -> {
@@ -228,7 +286,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                                 "Результат добавлен в библиотеку",
                                 Toast.LENGTH_SHORT
                             ).show()
-                        }catch (e: Exception){
+                        } catch (e: Exception) {
                             println("Exception while adding result")
                             e.printStackTrace()
                             Toast.makeText(
@@ -240,7 +298,26 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                         true
                     }
                     R.id.share -> {
-                        //todo share
+                        try {
+                            val file = File(controller.resultPath)
+                            if(file.exists()) {
+                                val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
+                                val intent = Intent(Intent.ACTION_SEND)
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                intent.setType("audio/mp3")
+                                intent.putExtra(Intent.EXTRA_STREAM, uri)
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent)
+                            }
+                        }  catch (e: Exception){
+                            println("Exception while sharing result")
+                            e.printStackTrace()
+                            Toast.makeText(
+                                this,
+                                "Не удалось отправить результат, попробуйте в другой раз!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         true
                     }
                     else -> {
@@ -267,28 +344,31 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                try{
-                val uri: Uri = data?.getData()!!
-                val src = uri.path!!
+                try {
+                    val uri: Uri = data?.getData()!!
+                    val src = uri.path!!
 
-                var subsrc = ""
-                if(src.contains("storage")){
-                     subsrc = src.subSequence(src.indexOf("storage")-1, src.length).toString()
-                }else if(src.contains("primary")){
-                    subsrc = src.subSequence(src.indexOf("primary")+8, src.length).toString()
-                    subsrc = "/storage/emulated/0/" + subsrc
-                }
-                val source: File = File(subsrc).absoluteFile
-                val destination = File(controller.homePath+"/recording.mp3")
+                    var subsrc = ""
+                    if (src.contains("storage")) {
+                        subsrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
+                    } else if (src.contains("primary")) {
+                        subsrc = src.subSequence(src.indexOf("primary") + 8, src.length).toString()
+                        subsrc = "/storage/emulated/0/" + subsrc
+                    }
+                    val source: File = File(subsrc).absoluteFile
+                    val destination = File(controller.homePath + "/recording.mp3")
 
-                copy(source, destination)
-                Toast.makeText(this, "Вы выбрали аудио $subsrc", Toast.LENGTH_SHORT).show()
-                getPlayableRecording()
-                }
-                catch(e: Exception){
+                    copy(source, destination)
+                    Toast.makeText(this, "Вы выбрали аудио $subsrc", Toast.LENGTH_SHORT).show()
+                    getPlayableRecording()
+                } catch (e: Exception) {
                     println("Error in getting file ")
                     e.printStackTrace()
-                    Toast.makeText(this, "Не вышло открыть аудиозапись! Попробуйте открыть другой файл.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Не вышло открыть аудиозапись! Попробуйте открыть другой файл.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } else {
                 Toast.makeText(this, "Пожалуйста, выберите аудиозапись!", Toast.LENGTH_SHORT).show()
@@ -297,19 +377,19 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun copy( source: File,  destination:File) {
+    private fun copy(source: File, destination: File) {
 
-        var inp : FileChannel =  FileInputStream(source).getChannel()
-        var out : FileChannel=  FileOutputStream(destination).getChannel()
+        var inp: FileChannel = FileInputStream(source).getChannel()
+        var out: FileChannel = FileOutputStream(destination).getChannel()
 
         try {
             inp.transferTo(0, inp.size(), out);
-        } catch( e:Exception){
+        } catch (e: Exception) {
             println("Error in copying the file\n")
             e.printStackTrace()
         } finally {
             if (inp != null)
-            inp.close();
+                inp.close();
             if (out != null)
                 out.close();
         }
@@ -596,5 +676,4 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
     }
-
 }

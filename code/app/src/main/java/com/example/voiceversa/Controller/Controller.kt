@@ -1,9 +1,14 @@
 package com.example.voiceversa.Controller
 
+import android.content.Context
+import android.os.Environment
 import com.example.voiceversa.controller
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 
- fun readAudioNames(path: String): ArrayList<String> {
+fun readAudioNames(path: String): ArrayList<String> {
     var audioNames: ArrayList<String> = ArrayList()
     File(path).walkTopDown().forEach {
         if(it.extension == "mp3"){
@@ -34,6 +39,8 @@ fun makeDirectories(path: String, name: String):String{
 }
 
 class Controller(homePath_ : String = "empty") {
+
+    var context: Context? = null
 
     var homePath : String = "empty"
         get() {
@@ -98,4 +105,28 @@ class Controller(homePath_ : String = "empty") {
         // input: chosen voice + recordingPath
         File(controller.homePath+"/recording.mp3").copyTo(File(controller.homePath + "/result.mp3"), overwrite = true)
     }
+
+    fun downloadAudio(sourcePath: String, filename: String) {
+        try {
+            val source = File(sourcePath)
+            val data = source.readBytes()
+            val uri = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(uri.absolutePath + "/" + filename)
+
+            if (!file.exists()) {
+                file.createNewFile()
+            }
+            val fos = FileOutputStream(file)
+            fos.write(data)
+            fos.close()
+
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 }
