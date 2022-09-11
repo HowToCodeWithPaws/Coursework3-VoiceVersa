@@ -26,28 +26,25 @@ class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var home = this.externalMediaDirs!![0]!!.absolutePath
-        println("\n\nhere "+home)
-        controller = Controller(home)
-        println("\n\n\ncontroller "+ controller.savedPath)
+        val home = this.externalMediaDirs!![0]!!.absolutePath
 
-        user = User("hii", "df")
+        controller = Controller(home)
 
         setContentView(R.layout.activity_auth)
         Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"
-
-//        var login: String = ""
-//        var password: String = ""
 
         val login_text = findViewById<EditText>(R.id.login)
         val password_text = findViewById<EditText>(R.id.password)
 
         val log_in_button = findViewById<Button>(R.id.log_in)
         val sign_in_button = findViewById<Button>(R.id.sign_in)
+        val guest_button = findViewById<Button>(R.id.guest)
+
 
         log_in_button.setOnClickListener {
             if (controller.signIn(login_text.text.toString(), password_text.text.toString())) {
-
+                user = User(login_text.text.toString())
+                // TODO: download user info
                 val intent = Intent(this, ProcessActivity::class.java)
                 startActivity(intent)
             } else {
@@ -61,6 +58,7 @@ class AuthActivity : AppCompatActivity() {
 
         sign_in_button.setOnClickListener {
             if (controller.signUp(login_text.text.toString(), password_text.text.toString())) {
+                user = User(login_text.text.toString())
                 val intent = Intent(this, ProcessActivity::class.java)
                 startActivity(intent)
             } else {
@@ -70,6 +68,12 @@ class AuthActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        }
+
+        guest_button.setOnClickListener{
+            user = User("", "")
+            val intent = Intent(this, ProcessActivity::class.java)
+            startActivity(intent)
         }
     }
 

@@ -5,10 +5,17 @@
       <map>
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/drawable/item_background.xml" value="0.1" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/drawable/rounded_buttons.xml" value="0.1" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/activity_account.xml" value="0.22" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/activity_auth.xml" value="0.11548913043478261" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/activity_library.xml" value="0.11548913043478261" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/activity_process.xml" value="0.11548913043478261" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/activity_request.xml" value="0.11141304347826086" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/activity_settings.xml" value="0.20491803278688525" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/audio_item.xml" value="0.11548913043478261" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/layout/list_item.xml" value="0.11548913043478261" />
+        <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/menu/account_menu.xml" value="0.184375" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/menu/library_actions_menu.xml" value="0.184375" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/menu/menu.xml" value="0.184375" />
         <entry key="..\:/Users/Natalya/Desktop/Coursework3-VoiceVersa/code/app/src/main/res/xml/provider_paths.xml" value="0.11141304347826086" />

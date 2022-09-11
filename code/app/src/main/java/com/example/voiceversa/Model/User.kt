@@ -4,8 +4,8 @@ package com.example.voiceversa.Model
 import java.io.Serializable
 import java.util.ArrayList
 
-class User(name_: String = "new user", token_: String = "token", audios_: ArrayList<Audio> = ArrayList()) : Serializable {
-    var name: String = "new user"
+class User(name_: String = "", var token: String = "token", var audios: ArrayList<Audio> = ArrayList()) : Serializable {
+    var name: String = ""
         get() {
             return field
         }
@@ -15,22 +15,9 @@ class User(name_: String = "new user", token_: String = "token", audios_: ArrayL
             }
         }
 
-    var token: String = "token"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
+    var autosaveRec : Boolean = false
 
-    var audios: ArrayList<Audio> = ArrayList()
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
-
+    var autosaveRes : Boolean = false
 
     override fun toString():String{
         return "name "+ name +"\n\naudios" + audios.joinToString { el->"\n"+el.title }
@@ -38,7 +25,5 @@ class User(name_: String = "new user", token_: String = "token", audios_: ArrayL
 
     init {
         name = name_
-        token = token_
-        audios = audios_
     }
 }

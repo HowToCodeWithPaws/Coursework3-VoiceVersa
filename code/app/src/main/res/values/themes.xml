@@ -3,15 +3,15 @@
     <style name="Theme.FancyWork" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
 
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryVariant">@color/lightPurpleBackground</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondaryColor</item>
-        <item name="colorSecondaryVariant">@color/secondaryDarkColor</item>
-        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/lightBlueBackground</item>
+        <item name="colorOnSecondary">@color/purple</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorOnSecondary</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -21,6 +21,6 @@
     </style>
 
     <style name="PopupThemeLight" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:colorBackground">@color/lightBackground</item>
+        <item name="android:colorBackground">@color/lightPurpleBackground</item>
     </style>
 </resources>

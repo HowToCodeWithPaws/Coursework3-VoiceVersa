@@ -2,7 +2,29 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.FancyWork">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/library_top_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ToolbarStyleLight"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:theme="@style/ToolbarStyleLight"
+            android:id="@+id/account_top_bar"
+            app:title="@string/account"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/account_menu"
+            android:hapticFeedbackEnabled="false" />
+    </com.google.android.material.appbar.AppBarLayout>
+
 
     <Button
         android:id="@+id/library"

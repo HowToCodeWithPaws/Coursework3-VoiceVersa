@@ -1,13 +1,17 @@
 package com.example.voiceversa.View.Library
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.voiceversa.AccountActivity
 import com.example.voiceversa.Controller.readAudioNames
 import com.example.voiceversa.Model.Audio
 import com.example.voiceversa.R
@@ -38,7 +42,15 @@ controller.context = this
         user.audios = array
 
        setContentView(R.layout.activity_library)
-        Objects.requireNonNull(supportActionBar)!!.title = "Библиотека"
+        Objects.requireNonNull(supportActionBar)!!.hide()
+        val topbar = findViewById<Toolbar>(R.id.library_top_bar)
+        topbar.setOnMenuItemClickListener { item: MenuItem ->
+            if (item.itemId == R.id.account) {
+                val intent = Intent(this, AccountActivity::class.java)
+                startActivity(intent)
+            }
+            true
+        }
 
          nestedListAdapter = NestedListAdapter(listList)
         rvList = findViewById<RecyclerView>(R.id.rv_list)

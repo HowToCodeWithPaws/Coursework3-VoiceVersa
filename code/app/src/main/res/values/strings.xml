@@ -1,18 +1,24 @@
 <resources>
     <string name="app_name">Voice Versa</string>
-    <string name="process">обработка аудио</string>
-    <string name="account">личный кабинет</string>
+    <string name="process">Обработка аудио</string>
+    <string name="account">Личный кабинет</string>
     <string name="login">логин</string>
     <string name="password">пароль</string>
-    <string name="log_in">войти</string>
-    <string name="sign_in">зарегистироваться</string>
-    <string name="settings">настройки</string>
-    <string name="request">заявка</string>
-    <string name="library">библиотека</string>
+    <string name="log_in">Войти</string>
+    <string name="sign_in">Зарегистироваться</string>
+    <string name="settings">Настройки</string>
+    <string name="request">Заявка</string>
+    <string name="library">Библиотека</string>
     <string name="elapsedTime">00:00</string>
     <string name="totalTime">1:00</string>
     <string name="voice">Голос</string>
     <string name="share">Поделиться</string>
     <string name="add">Добавить</string>
     <string name="download">Скачать</string>
+    <string name="account_settings">Настройки аккаунта</string>
+    <string name="audio_settings">Настройки работы с аудио</string>
+    <string name="delete_library">Очистить библиотеку</string>
+    <string name="autosave_res">   автосохранение результатов</string>
+    <string name="autosave_rec">   автосохранение аудиозаписей</string>
+    <string name="guest">Войти как гость</string>
 </resources>

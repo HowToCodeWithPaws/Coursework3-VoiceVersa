@@ -104,29 +104,19 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
                 menu.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.delete -> {
-                            try {
-                                var index = audios.indexOf(audio)
-                                audios.removeAt(index)
-                                user.audios.remove(audio)
-                                val file = File(audio.url)
-                                val uri = FileProvider.getUriForFile(
-                                    controller.context!!,
-                                    BuildConfig.APPLICATION_ID + ".provider", file)
 
-                                val contentResolver: ContentResolver =
-                                    controller.context!!.getContentResolver()
-                                contentResolver.delete(uri, null, null)
-                                Toast.makeText(
-                                    controller.context,
-                                    "Аудио удалено",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                if( controller.deleteAudio(audio, user)){
+                                    var index = audios.indexOf(audio)
+                                    audios.removeAt(index)
+                                    Toast.makeText(
+                                        controller.context,
+                                        "Аудио удалено",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 
-                                parentAdapter.notifyItemRemoved(index)
-                                parentAdapter.notifyItemRangeChanged(position, audios.size);
-                            } catch (e: Exception) {
-                                println("Exception while deleting audio")
-                                e.printStackTrace()
+                                    parentAdapter.notifyItemRemoved(index)
+                                    parentAdapter.notifyItemRangeChanged(position, audios.size);
+                                }else{
                                 Toast.makeText(
                                     controller.context,
                                     "Не удалось удалить аудио из библиотеки, попробуйте в другой раз!",

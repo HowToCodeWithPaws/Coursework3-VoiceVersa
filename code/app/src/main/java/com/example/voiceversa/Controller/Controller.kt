@@ -1,8 +1,12 @@
 package com.example.voiceversa.Controller
 
+import android.content.ContentResolver
 import android.content.Context
 import android.os.Environment
-import com.example.voiceversa.controller
+import androidx.core.content.FileProvider
+import com.example.voiceversa.BuildConfig
+import com.example.voiceversa.Model.Audio
+import com.example.voiceversa.Model.User
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -103,7 +107,7 @@ class Controller(homePath_ : String = "empty") {
     fun process(voice: String){
         //TODO: server process audio than save new one
         // input: chosen voice + recordingPath
-        File(controller.homePath+"/recording.mp3").copyTo(File(controller.homePath + "/result.mp3"), overwrite = true)
+        File(this.homePath+"/recording.mp3").copyTo(File(this.homePath + "/result.mp3"), overwrite = true)
     }
 
     fun downloadAudio(sourcePath: String, filename: String) {
@@ -126,6 +130,33 @@ class Controller(homePath_ : String = "empty") {
             e.printStackTrace()
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun deleteLibrary(user: User):Boolean{
+        var result = true
+       for(audio in user.audios){
+           result = result && deleteAudio(audio, user)
+       }
+        return result
+    }
+
+    fun deleteAudio(audio: Audio, user: User):Boolean{
+        try{
+            user.audios.remove(audio)
+            val file = File(audio.url)
+            val uri = FileProvider.getUriForFile(
+                this.context!!,
+                BuildConfig.APPLICATION_ID + ".provider", file)
+
+            val contentResolver: ContentResolver =
+                this.context!!.getContentResolver()
+            contentResolver.delete(uri, null, null)
+            return true
+        }catch (e:Exception){
+            println("Error while deleting audio")
+            e.printStackTrace()
+            return false
         }
     }
 

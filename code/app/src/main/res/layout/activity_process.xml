@@ -4,14 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".View.ProcessActivity"
+    tools:context=".View.Settings.ProcessActivity"
     android:theme="@style/Theme.FancyWork">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/secondaryColor"
         android:theme="@style/ToolbarStyleLight"
 
         app:layout_constraintEnd_toEndOf="parent"

@@ -2,10 +2,13 @@ package com.example.voiceversa
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.example.voiceversa.View.Library.LibraryActivity
 import com.example.voiceversa.View.Request.RequestActivity
+import com.example.voiceversa.View.Settings.ProcessActivity
 import com.example.voiceversa.View.Settings.SettingsActivity
 import java.util.*
 
@@ -17,7 +20,15 @@ class AccountActivity : AppCompatActivity() {
 //TODO сделать красивое??
         setContentView(R.layout.activity_account)
 
-        Objects.requireNonNull(supportActionBar)!!.title = "Личный кабинет"
+        Objects.requireNonNull(supportActionBar)!!.hide()
+        val topbar = findViewById<Toolbar>(R.id.account_top_bar)
+        topbar.setOnMenuItemClickListener { item: MenuItem ->
+            if (item.itemId == R.id.process) {
+                val intent = Intent(this, ProcessActivity::class.java)
+                startActivity(intent)
+            }
+            true
+        }
         val library_button = findViewById<Button>(R.id.library)
         val settings_button = findViewById<Button>(R.id.settings)
         val request_button = findViewById<Button>(R.id.request)
