@@ -1,7 +1,9 @@
 package com.example.voiceversa.View.Library
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -11,6 +13,7 @@ import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.contentcapture.ContentCaptureContext
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
@@ -105,7 +108,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
                     when (item.itemId) {
                         R.id.delete -> {
 
-                                if( controller.deleteAudio(audio, user)){
+                                if( controller.deleteAudio(audio)){
                                     var index = audios.indexOf(audio)
                                     audios.removeAt(index)
                                     Toast.makeText(
@@ -116,6 +119,16 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
 
                                     parentAdapter.notifyItemRemoved(index)
                                     parentAdapter.notifyItemRangeChanged(position, audios.size);
+
+                                    controller.deleteAudio(audio.title)//.observe(){
+                                 //       if(it == null){
+                                   //         Toast.makeText(
+                                     //           controller.context,
+                                       //         "Не удалось удалить аудио из библиотеки с сервера, попробуйте в другой раз!",
+                                         //       Toast.LENGTH_SHORT
+                                           // ).show()
+                                        //}
+                                    //}
                                 }else{
                                 Toast.makeText(
                                     controller.context,

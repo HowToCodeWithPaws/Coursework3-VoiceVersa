@@ -5,7 +5,7 @@ import androidx.annotation.RequiresApi
 import java.time.Instant
 import java.util.*
 
-class Audio @RequiresApi(Build.VERSION_CODES.O) constructor(title_: String = "новое аудио", source_: String = "recording", url_: String = "",
+class Audio @RequiresApi(Build.VERSION_CODES.O) constructor( var ID : String = "", title_: String = "новое аудио", var source: String = "recording", var url: String = "",
                                                             duration_: Int = 0, date_: Date = Date.from(Instant.now()) ) {
 
     var title: String  = "новое аудио"
@@ -26,21 +26,6 @@ class Audio @RequiresApi(Build.VERSION_CODES.O) constructor(title_: String = "н
             if (value >= 0) field = value
         }
 
-    var source: String = ""
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
-
-    var url: String = ""
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     var date: Date = Date.from(Instant.now())
@@ -54,8 +39,6 @@ class Audio @RequiresApi(Build.VERSION_CODES.O) constructor(title_: String = "н
     init {
         title = title_
         duration = duration_
-        source = source_
         date = date_
-        url = url_
     }
 }

@@ -17,7 +17,6 @@ class AccountActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//TODO сделать красивое??
         setContentView(R.layout.activity_account)
 
         Objects.requireNonNull(supportActionBar)!!.hide()

@@ -26,10 +26,27 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
     lateinit var rvList: RecyclerView
     lateinit var sortSpinner: Spinner
 
+    fun getAudios(){
+        controller.loadLibrary().observe(this){
+            if (!it.isNullOrEmpty()) {
+                //TODO сохранить аудио как файлы в нужную папку - savedPath
+            } else {
+
+                Toast.makeText(
+                    this,
+                    "Не получилось загрузить библиотеку с сервера! Попробуйте в другой раз",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
 controller.context = this
+
+        getAudios()
 
         var names: ArrayList<String> = readAudioNames(controller.savedPath)
         var array = ArrayList<Audio>()

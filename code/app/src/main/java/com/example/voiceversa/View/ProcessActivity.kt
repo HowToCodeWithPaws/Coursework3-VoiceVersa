@@ -18,11 +18,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.example.voiceversa.AccountActivity
-import com.example.voiceversa.BuildConfig
+import com.example.voiceversa.*
 import com.example.voiceversa.Controller.readAudioNames
-import com.example.voiceversa.R
-import com.example.voiceversa.controller
+import com.example.voiceversa.Model.Audio
+import com.example.voiceversa.Model.User
 import java.io.*
 import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
@@ -93,16 +92,76 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         totalTimeLabelRes = findViewById<TextView>(R.id.totalTimeLabelRes)
         actionsRec = findViewById(R.id.actionsRec)
         actionsRes = findViewById(R.id.actionsRes)
+        startRecBtn = findViewById(R.id.startRecBtn)
+        pauseRecBtn = findViewById(R.id.pauseRecBtn)
 
+        getPermissions()
+        setListeners()
+        setVoices()
+        setEnabled()
+        setMenuListeners()
+    }
+
+    fun setEnabled(){
         playRecBtn.isEnabled = false
         playResBtn.isEnabled = false
         actionsRec.isEnabled = false
         actionsRes.isEnabled = false
-
         processBtn.isEnabled = false
 
-        startRecBtn = findViewById(R.id.startRecBtn)
-        pauseRecBtn = findViewById(R.id.pauseRecBtn)
+        if (!controller.online){
+            Toast.makeText(
+                this,
+                "К сожалению, вы не подключены к серверу. Вам доступен определенный оффлайн " +
+                        "функционал, но для полноценной работы приложения дождитесь, пожалуйста, " +
+                        "установки подключения.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    fun getVoices(){
+        controller.loadVoices().observe(this){
+            if (!it.isNullOrEmpty()) {
+                //TODO сохранить голоса как файлы в нужную папку - voicesPath
+                setVoices()
+            } else {
+
+                Toast.makeText(
+                    this,
+                    "Не получилось загрузить голоса с сервера! Попробуйте в другой раз",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setVoices() {
+        val voices = readAudioNames(controller.voicesPath)
+        if (voices.isEmpty()) playVoiceBtn.isEnabled = false
+
+        var array = ArrayList<Audio>()
+
+        for (name in voices) {
+            var origin = "voice"
+            array.add(Audio(name, origin, controller.voicesPath + "/" + name + ".mp3"))//TODO: read data like date of creation+ id
+        }
+
+        user.voices = array
+
+        val adapterVoices =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                voices
+            )
+        adapterVoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        voiceSpinner.adapter = adapterVoices
+        voiceSpinner.onItemSelectedListener = this
+    }
+
+    fun getPermissions() {
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -118,7 +177,9 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             )
             ActivityCompat.requestPermissions(this, permissions, 0)
         }
+    }
 
+    fun setListeners() {
         startRecBtn.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -144,95 +205,30 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         attachRecBtn.setOnClickListener(this)
+    }
 
-        val voices = readAudioNames(controller.voicesPath)
-        if (voices.isEmpty()) playVoiceBtn.isEnabled = false
-
-        val adapterVoices =
-            ArrayAdapter(
-                this,
-                android.R.layout.simple_spinner_item,
-                voices
-            )
-        adapterVoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        voiceSpinner.adapter = adapterVoices
-        voiceSpinner.onItemSelectedListener = this
-
-
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setMenuListeners() {
         actionsRec.setOnClickListener {
             val menu = PopupMenu(this, it)
             menu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.download -> {
-                        try{
-                        val now = Date.from(Instant.now())
-                        val formatterDate = SimpleDateFormat("dd.MM.yyyy")
-                        val formatterTime = SimpleDateFormat("HH:mm")
-                        val filename = "VoiceVersa_Recording_" +
-                                formatterDate.format(now) + "_" + formatterTime.format(now) +".mp3"
-                        controller.downloadAudio(controller.recordingPath, filename)
-                            Toast.makeText(
-                                this,
-                                "Запись сохранена в загрузки",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        catch (e: Exception){
-                            println("Exception while saving recording")
-                            e.printStackTrace()
-                            Toast.makeText(
-                                this,
-                                "Не удалось сохранить запись в загрузки, попробуйте в другой раз!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        downloadAudio(
+                            "Recording", controller.recordingPath,
+                            "Запись сохранена в загрузки", "запись"
+                        )
                         true
                     }
                     R.id.add -> {
-                        try {
-                            val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
-                            val currentDate = sdf.format(Date())
-                            File(controller.homePath + "/recording.mp3").copyTo(
-                                File(controller.savedPath + "/recording" + currentDate + ".mp3"),
-                                overwrite = false
-                            )
-                            Toast.makeText(
-                                this,
-                                "Запись добавлена в библиотеку",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } catch (e: Exception) {
-                            println("Exception while adding recording")
-                            e.printStackTrace()
-                            Toast.makeText(
-                                this,
-                                "Не удалось добавить запись в библиотеку, попробуйте в другой раз!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        addAudioToLibrary(
+                            "recording", "Запись добавлена в библиотеку",
+                            "запись"
+                        )
                         true
                     }
                     R.id.share -> {
-                        try {
-                            val file = File(controller.recordingPath)
-                            if(file.exists()) {
-                                val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
-                                val intent = Intent(Intent.ACTION_SEND)
-                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                intent.setType("audio/mp3")
-                                intent.putExtra(Intent.EXTRA_STREAM, uri)
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent)
-                            }
-                        }  catch (e: Exception){
-                                println("Exception while sharing recording")
-                                e.printStackTrace()
-                                Toast.makeText(
-                                    this,
-                                    "Не удалось отправить запись, попробуйте в другой раз!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                        }
+                        shareAudio(controller.recordingPath, "recording", "запись")
                         true
                     }
                     else -> {
@@ -250,74 +246,21 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             menu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.download -> {
-                        try{
-                        val now = Date.from(Instant.now())
-                        val formatterDate = SimpleDateFormat("dd.MM.yyyy")
-                        val formatterTime = SimpleDateFormat("HH:mm")
-                        val filename = "VoiceVersa_Result_" +
-                            formatterDate.format(now) + "_" + formatterTime.format(now) +".mp3"
-                       controller.downloadAudio(controller.resultPath, filename)
-                            Toast.makeText(
-                                this,
-                                "Результат сохранен в загрузки",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } catch (e: Exception){
-                            println("Exception while saving result")
-                            e.printStackTrace()
-                            Toast.makeText(
-                                this,
-                                "Не удалось сохранить результат в загрузки, попробуйте в другой раз!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        downloadAudio(
+                            "Result", controller.resultPath,
+                            "Результат сохранен в загрузки", "результат"
+                        )
                         true
                     }
                     R.id.add -> {
-                        try {
-                            val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
-                            val currentDate = sdf.format(Date())
-                            File(controller.homePath + "/result.mp3").copyTo(
-                                File(controller.savedPath + "/result" + currentDate + ".mp3"),
-                                overwrite = false
-                            )
-                            Toast.makeText(
-                                this,
-                                "Результат добавлен в библиотеку",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } catch (e: Exception) {
-                            println("Exception while adding result")
-                            e.printStackTrace()
-                            Toast.makeText(
-                                this,
-                                "Не удалось добавить результат в библиотеку, попробуйте в другой раз!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        addAudioToLibrary(
+                            "result", "Результат добавлен в библиотеку",
+                            "результат"
+                        )
                         true
                     }
                     R.id.share -> {
-                        try {
-                            val file = File(controller.resultPath)
-                            if(file.exists()) {
-                                val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
-                                val intent = Intent(Intent.ACTION_SEND)
-                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                intent.setType("audio/mp3")
-                                intent.putExtra(Intent.EXTRA_STREAM, uri)
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent)
-                            }
-                        }  catch (e: Exception){
-                            println("Exception while sharing result")
-                            e.printStackTrace()
-                            Toast.makeText(
-                                this,
-                                "Не удалось отправить результат, попробуйте в другой раз!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        shareAudio(controller.resultPath, "result", "результат")
                         true
                     }
                     else -> {
@@ -328,9 +271,89 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             menu.inflate(R.menu.actions_menu)
             menu.show()
         }
-
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun downloadAudio(source: String, path: String, message: String, messageSource: String) {
+        try {
+            val now = Date.from(Instant.now())
+            val formatterDate = SimpleDateFormat("dd.MM.yyyy")
+            val formatterTime = SimpleDateFormat("HH:mm")
+            val filename = "VoiceVersa_" + source + "_"+
+            formatterDate.format(now) + "_" + formatterTime.format(now) + ".mp3"
+            controller.downloadAudio(path, filename)
+            Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_SHORT
+            ).show()
+        } catch (e: Exception) {
+            println("Exception while saving " + source)
+            e.printStackTrace()
+            Toast.makeText(
+                this,
+                "Не удалось сохранить " + messageSource + " в загрузки, попробуйте в другой раз!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    fun addAudioToLibrary(source: String, message: String, messageSource: String) {
+        try {
+            val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
+            val currentDate = sdf.format(Date())
+            File(controller.homePath + "/" + source + ".mp3").copyTo(
+                File(controller.savedPath + "/" + source + currentDate + ".mp3"),
+                overwrite = false
+            )
+            Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_SHORT
+            ).show()
+        } catch (e: Exception) {
+            println("Exception while adding " + source)
+            e.printStackTrace()
+            Toast.makeText(
+                this,
+                "Не удалось добавить " + messageSource + " в библиотеку, попробуйте в другой раз!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        controller.addToLibrary(controller.homePath + "/" + source + ".mp3").observe(this){
+            if(it == null){
+                Toast.makeText(this, "К сожалению, не получилось добавить аудио в библиотеку на сервере. Попробуйте позже.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    fun shareAudio(path: String, source: String, messageSource: String) {
+        try {
+            val file = File(path)
+            if (file.exists()) {
+                val uri = FileProvider.getUriForFile(
+                    this,
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    file
+                )
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                intent.setType("audio/mp3")
+                intent.putExtra(Intent.EXTRA_STREAM, uri)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent)
+            }
+        } catch (e: Exception) {
+            println("Exception while sharing " + source)
+            e.printStackTrace()
+            Toast.makeText(
+                this,
+                "Не удалось отправить " + messageSource + ", попробуйте в другой раз!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     override fun onClick(v: View?) {
         val intent = Intent()
@@ -341,35 +364,9 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                try {
-                    val uri: Uri = data?.getData()!!
-                    val src = uri.path!!
-
-                    var subsrc = ""
-                    if (src.contains("storage")) {
-                        subsrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
-                    } else if (src.contains("primary")) {
-                        subsrc = src.subSequence(src.indexOf("primary") + 8, src.length).toString()
-                        subsrc = "/storage/emulated/0/" + subsrc
-                    }
-                    val source: File = File(subsrc).absoluteFile
-                    val destination = File(controller.homePath + "/recording.mp3")
-
-                    copy(source, destination)
-                    Toast.makeText(this, "Вы выбрали аудио $subsrc", Toast.LENGTH_SHORT).show()
-                    getPlayableRecording()
-                } catch (e: Exception) {
-                    println("Error in getting file ")
-                    e.printStackTrace()
-                    Toast.makeText(
-                        this,
-                        "Не вышло открыть аудиозапись! Попробуйте открыть другой файл.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+              getAudioFromStorage(data, controller.homePath + "/recording.mp3")
             } else {
                 Toast.makeText(this, "Пожалуйста, выберите аудиозапись!", Toast.LENGTH_SHORT).show()
             }
@@ -377,8 +374,36 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun copy(source: File, destination: File) {
+    fun getAudioFromStorage(data: Intent?, destinationPath: String){
+        try {
+            val uri: Uri = data?.getData()!!
+            val src = uri.path!!
+            var subsrc = ""
 
+            if (src.contains("storage")) {
+                subsrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
+            } else if (src.contains("primary")) {
+                subsrc = "/storage/emulated/0/" + src.subSequence(src.indexOf("primary") + 8, src.length).toString()
+            }
+
+            val source: File = File(subsrc).absoluteFile
+            val destination = File(destinationPath)
+
+            copy(source, destination)
+            Toast.makeText(this, "Вы выбрали аудио $subsrc", Toast.LENGTH_SHORT).show()
+            getPlayableRecording()
+        } catch (e: Exception) {
+            println("Error in getting file ")
+            e.printStackTrace()
+            Toast.makeText(
+                this,
+                "Не вышло открыть аудиозапись! Попробуйте открыть другой файл.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun copy(source: File, destination: File) {
         var inp: FileChannel = FileInputStream(source).getChannel()
         var out: FileChannel = FileOutputStream(destination).getChannel()
 
@@ -522,6 +547,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getPlayableRecording() {
         var recURL = Uri.parse(controller.recordingPath)
         recPlayer = MediaPlayer.create(this, recURL)
@@ -566,7 +592,13 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         playRecBtn.isEnabled = true
         actionsRec.isEnabled = true
-        processBtn.isEnabled = true
+        processBtn.isEnabled = controller.online
+        if (user.autosaveRec){
+            downloadAudio(
+                "Recording", controller.recordingPath,
+                "Запись сохранена в загрузки", "запись"
+            )
+        }
     }
 
 
@@ -581,6 +613,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getPlayableResult() {
         var resURL = Uri.parse(controller.resultPath)
         resPlayer = MediaPlayer.create(this, resURL)
@@ -625,14 +658,32 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         playResBtn.isEnabled = true
         actionsRes.isEnabled = true
+        if (user.autosaveRes){
+            downloadAudio(
+                "Result", controller.resultPath,
+                "Результат сохранен в загрузки", "результат"
+            )
+        }
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun process(view: View) {
-        controller.process(voice)
-        processed = true
-        Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
-        getPlayableResult()
+        controller.process(1).observe(this) {
+            //TODO get voice id
+            if (!it.isNullOrEmpty()) {
+                processed = true
+                Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
+                getPlayableResult()
+            } else {
+
+                Toast.makeText(
+                    this,
+                    "Не получилось обработать аудио! Попробуйте в другой раз",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     fun playVoiceBtnClick(view: View) {

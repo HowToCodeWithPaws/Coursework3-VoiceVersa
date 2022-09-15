@@ -21,4 +21,11 @@
     <string name="autosave_res">   автосохранение результатов</string>
     <string name="autosave_rec">   автосохранение аудиозаписей</string>
     <string name="guest">Войти как гость</string>
+    <string name="request_description">Если вы хотите добавить голос к возможным голосам для обработки аудиозаписей, прикрепите здесь образец желаемого голоса и отправьте в обработку. Рекомендуется прикреплять достаточно материала: хотя бы 10 минут речи, желательно без посторонних шумов. Вы можете записать аудиозапись или прикрепить архив, содержащий аудиозаписи. Модератор рассмотрит вашу заявку.</string>
+    <string name="request_recording_caption">Запись</string>
+    <string name="request_archive_caption">Загрузка архива</string>
+    <string name="chosen_file">Выбранный файл</string>
+    <string name="request_name">Название заявки или голоса</string>
+    <string name="send_audio">Отправить аудиозапись</string>
+    <string name="send_archive">Отправить архив</string>
 </resources>

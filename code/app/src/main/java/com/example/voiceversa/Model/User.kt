@@ -4,7 +4,7 @@ package com.example.voiceversa.Model
 import java.io.Serializable
 import java.util.ArrayList
 
-class User(name_: String = "", var token: String = "token", var audios: ArrayList<Audio> = ArrayList()) : Serializable {
+class User(name_: String = "", var token: String = "token", var audios: ArrayList<Audio> = ArrayList(), var voices: ArrayList<Audio> = ArrayList()) : Serializable {
     var name: String = ""
         get() {
             return field

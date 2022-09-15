@@ -43,6 +43,18 @@ class SettingsActivity : AppCompatActivity() {
         val autosave_res = findViewById<SwitchCompat>(R.id.autosave_res)
         val delete_library = findViewById<Button>(R.id.delete_library)
 
+        if (!controller.online){
+            log_in_out_button.isEnabled = false
+            delete_library.isEnabled = false
+            Toast.makeText(
+                this,
+                "К сожалению, вы не подключены к серверу. Вам доступен определенный оффлайн " +
+                        "функционал, но для полноценной работы приложения дождитесь, пожалуйста, " +
+                        "установки подключения.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
 
     refresh()
 
@@ -90,7 +102,7 @@ class SettingsActivity : AppCompatActivity() {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes,
                     DialogInterface.OnClickListener { dialog, whichButton ->
-                        controller.deleteLibrary(user)
+                        controller.deleteLibrary()
                         Toast.makeText(
                             this,
                             "Библиотека очищена",
