@@ -4,20 +4,22 @@ import android.content.ContentResolver
 import android.content.Context
 import android.os.Environment
 import android.os.FileUtils
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.voiceversa.BuildConfig
-import com.example.voiceversa.Model.Audio
-import com.example.voiceversa.Model.AudioFromServer
-import com.example.voiceversa.Model.Token
-import com.example.voiceversa.Model.VoiceFromServer
+import com.example.voiceversa.Model.*
 import com.example.voiceversa.controller
 import com.example.voiceversa.user
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -123,7 +125,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     var online: Boolean = false
 
     companion object {
-        private const val BASE_URL = "192.168.43.217:8080" //TODO change to ours
+        private const val BASE_URL = "http://192.168.1.150:8080" //TODO change to ours
     }
 
     private var service: AudioApiService? = null
@@ -190,10 +192,12 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         apiInterface.enqueue(object : Callback<List<AudioFromServer>> {
             override fun onResponse(call: Call<List<AudioFromServer>>, response: Response<List<AudioFromServer>>) {
                 library.postValue(response.body())
+                Log.d("LIB", "SUCCESS: ${response.body()}")
             }
 
             override fun onFailure(call: Call<List<AudioFromServer>>, t: Throwable) {
                 library.postValue(null)
+                Log.d("LIB", "ERROR: ${t.message}")
             }
         })
     }
@@ -240,8 +244,9 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun signInOrUp(username: String, password: String, key: String): LiveData<String> {
+        Log.d("TOKEN", "Start")
         val apiInterface = if (key == "signin") {
-            service!!.authorize(username, password)
+            service!!.authorize(LoginRequest(username, password))
         } else if (key == "signup") {
             service!!.signUp(username, password)
         } else {
@@ -261,6 +266,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
             override fun onFailure(call: Call<Token>, t: Throwable) {
                 token.postValue(null)
+                Log.d("TOKEN", "FAILED: ${t.message}")
             }
         })
     }
@@ -273,7 +279,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
         val requestFile = RequestBody.create(
-            MediaType.parse("multipart/form-data"),//or "audio/mp3" idk
+            "multipart/form-data".toMediaTypeOrNull(),//or "audio/mp3" idk
             file
         )
 
@@ -309,7 +315,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
         val requestFile = RequestBody.create(
-            MediaType.parse("multipart/form-data"),
+            "multipart/form-data".toMediaTypeOrNull(),
             file
         )
 
@@ -345,7 +351,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
         val requestFile = RequestBody.create(
-            MediaType.parse("multipart/form-data"),
+            "multipart/form-data".toMediaTypeOrNull(),
             file
         )
 

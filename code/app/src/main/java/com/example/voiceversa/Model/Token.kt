@@ -1,3 +1,8 @@
 package com.example.voiceversa.Model
 
-data class Token (var token:String = "")
+import com.google.gson.annotations.SerializedName
+
+data class Token (
+    @SerializedName("token")
+    val token: String
+)
