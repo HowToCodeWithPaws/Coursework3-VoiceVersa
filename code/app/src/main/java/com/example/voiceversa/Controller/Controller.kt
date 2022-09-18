@@ -3,7 +3,6 @@ package com.example.voiceversa.Controller
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Environment
-import android.os.FileUtils
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
@@ -13,13 +12,10 @@ import com.example.voiceversa.BuildConfig
 import com.example.voiceversa.Model.*
 import com.example.voiceversa.controller
 import com.example.voiceversa.user
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import org.json.JSONObject
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -67,60 +63,18 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     var context: Context? = null
 
     var homePath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var requestRecordingPath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var requestArchivePath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var recordingPath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var resultPath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var voicesPath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var savedPath: String = "empty"
-        get() {
-            return field
-        }
-        set(value) {
-            field = value
-        }
 
     var online: Boolean = false
 
@@ -160,10 +114,10 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     init {
         homePath = homePath_
-        requestRecordingPath = homePath + "/request.mp3"
-        requestArchivePath = homePath + "/request.zip"
-        recordingPath = homePath + "/recording.mp3"
-        resultPath = homePath + "/result.mp3"
+        requestRecordingPath = "$homePath/request.mp3"
+        requestArchivePath = "$homePath/request.zip"
+        recordingPath = "$homePath/recording.mp3"
+        resultPath = "$homePath/result.mp3"
         voicesPath = makeDirectories(homePath, "voices")
         savedPath = makeDirectories(homePath, "saved")
 
@@ -182,7 +136,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun loadLibrary():LiveData<List<AudioFromServer>>{
         val apiInterface = service!!.loadLibrary(token.toString())
 
-        serverLoadLibrary(apiInterface!!, library)
+        serverLoadLibrary(apiInterface, library)
 
         return library
     }
@@ -205,7 +159,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun loadVoices():LiveData<List<VoiceFromServer>>{
         val apiInterface = service!!.loadVoices(token.toString())
 
-        serverLoadVoices(apiInterface!!, voices)
+        serverLoadVoices(apiInterface, voices)
 
         return voices
     }
@@ -223,10 +177,10 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         })
     }
 
-    fun deleteAudio(name: String): LiveData<Any> {
-        val apiInterface =    service!!.delete(name, token.toString())
+    fun deleteAudio(id: Int): LiveData<Any> {
+        val apiInterface = service!!.delete(id, token.toString())
 
-        serverDeleteAudio(apiInterface!!, deleteResult)
+        serverDeleteAudio(apiInterface, deleteResult)
 
         return deleteResult
     }
@@ -288,17 +242,16 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         //TODO: server process audio than save new one
         // input: chosen voice + recordingPath
 
-        val file: File = File(controller.recordingPath)
+        val file = File(controller.recordingPath)
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
-        val requestFile = RequestBody.create(
-            "multipart/form-data".toMediaTypeOrNull(),//or "audio/mp3" idk
-            file
-        )
+        val requestFile = file
+            .asRequestBody("audio/*".toMediaTypeOrNull()//or "audio/mp3" idk
+            )
 
         val body = MultipartBody.Part.createFormData("recording", file.name, requestFile)
-
-        val apiInterface = service!!.process(230, body, token.toString())//replace 230 with voice code
+        val voice = "${230}".toRequestBody("text/plain".toMediaTypeOrNull())
+        val apiInterface = service!!.process(voice, body, token.toString())//replace 230 with voice code
 
         serverProcess(apiInterface, result)
 
@@ -324,13 +277,10 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun addToLibrary(audioPath: String): LiveData<Any> {
 
-        var file : File = File(audioPath)
+        var file: File = File(audioPath)
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
-        val requestFile = RequestBody.create(
-            "multipart/form-data".toMediaTypeOrNull(),
-            file
-        )
+        val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull())
 
         val body = MultipartBody.Part.createFormData("library", file.name, requestFile)
         val apiInterface = service!!.save(body, token.toString())
@@ -353,22 +303,23 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun sendRequest(requestName: String): LiveData<Any> {
 
-        var file : File =
-        if (requestName.startsWith("archive")){
-            File(controller.requestArchivePath)
+        var file: File =
+            if (requestName.startsWith("archive")) {
+                File(controller.requestArchivePath)
 
-        }else if (requestName.startsWith("audio")){
-            File(controller.requestRecordingPath)
-        }else{File("")}
+            } else if (requestName.startsWith("audio")) {
+                File(controller.requestRecordingPath)
+            } else {
+                File("")
+            }
 
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
-        val requestFile = RequestBody.create(
-            "multipart/form-data".toMediaTypeOrNull(),
-            file
-        )
+        val requestFile = file
+            .asRequestBody("multipart/form-data".toMediaTypeOrNull())
 
-        val body = MultipartBody.Part.createFormData("request"+requestName, file.name, requestFile)
+        val body =
+            MultipartBody.Part.createFormData("request" + requestName, file.name, requestFile)
         val apiInterface = service!!.request(body, token.toString())
         serverRequest(apiInterface, requestResult)
 
@@ -439,7 +390,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             )
 
             val contentResolver: ContentResolver =
-                this.context!!.getContentResolver()
+                this.context!!.contentResolver
             contentResolver.delete(uri, null, null)
             return true
         } catch (e: Exception) {

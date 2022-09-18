@@ -5,6 +5,7 @@ import com.example.voiceversa.Model.LoginRequest
 import com.example.voiceversa.Model.Token
 import com.example.voiceversa.Model.VoiceFromServer
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -18,12 +19,12 @@ interface AudioApiService {
     fun delete(@Path("id") id: Int, @Header("Authorization") token: String): Call<Any>
 
     @Multipart
-    @POST("/propose/")
+    @POST("/request/")
     fun request(@Part sample: MultipartBody.Part, @Header("Authorization") token: String): Call<Any>
 
     @Multipart
     @POST("/process/")
-    fun process(@Part("voice") voice: Int, @Part audio: MultipartBody.Part,
+    fun process(@Part("voice") voice: RequestBody, @Part audio: MultipartBody.Part,
                 @Header("Authorization") token: String): Call<String>//TODO понять
 
     @POST("/login/")
