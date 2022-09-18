@@ -86,8 +86,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         MutableLiveData<String>()
     }
 
-    private val result: MutableLiveData<String> by lazy {
-        MutableLiveData<String>()
+    private val result: MutableLiveData<ResultFromServer> by lazy {
+        MutableLiveData<ResultFromServer>()
     }
 
     private val voices: MutableLiveData<AudioListResponse<VoiceFromServer>> by lazy {
@@ -302,7 +302,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         })
     }
 
-    fun process(voiceID: Int): LiveData<String> {
+    fun process(voiceID: Int): LiveData<ResultFromServer> {
         val file = File(controller.recordingPath)
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
@@ -324,15 +324,13 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return result
     }
 
-    private fun serverProcess(apiInterface: Call<String>, result: MutableLiveData<String>) {
-        apiInterface.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                result.postValue(response.body()?.toString())
-
-                // TODO save file to server.resultPath
+    private fun serverProcess(apiInterface: Call<ResultFromServer>, result: MutableLiveData<ResultFromServer>) {
+        apiInterface.enqueue(object : Callback<ResultFromServer> {
+            override fun onResponse(call: Call<ResultFromServer>, response: Response<ResultFromServer>) {
+                result.postValue(response.body())
             }
 
-            override fun onFailure(call: Call<String>, t: Throwable) {
+            override fun onFailure(call: Call<ResultFromServer>, t: Throwable) {
                 result.postValue(null)
             }
         })
