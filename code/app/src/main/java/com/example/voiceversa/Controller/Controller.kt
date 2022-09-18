@@ -16,15 +16,13 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 
 
 fun readAudioNames(path: String): ArrayList<String> {
@@ -112,6 +110,10 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         MutableLiveData<Any>()
     }
 
+    private val downloadBody : MutableLiveData<Boolean> by lazy {
+        MutableLiveData<Boolean>()
+    }
+
     init {
         homePath = homePath_
         requestRecordingPath = "$homePath/request.mp3"
@@ -133,6 +135,67 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         }
     }
 
+    fun downloadAudioByURL(url: String, path: String):LiveData<Boolean>{
+        val apiInterface = service!!.downloadFileWithDynamicUrlSync(token.toString(), url)
+
+        serverDownloadAudioByURL(apiInterface, downloadBody, path)
+
+        return downloadBody
+    }
+
+    fun serverDownloadAudioByURL(apiInterface: Call<ResponseBody>,
+                                 downloadBody: MutableLiveData<Boolean>, path: String){
+
+        apiInterface.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                downloadBody.postValue( writeResponseBodyToDisk(response.body()!!, path))
+                Log.d("LIB", "SUCCESS: ${response.body()}")
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+               downloadBody.postValue(false)
+                Log.d("LIB", "ERROR: ${t.message}")
+            }
+        })
+    }
+
+    private fun writeResponseBodyToDisk(body: ResponseBody, path:String): Boolean {
+        return try {
+            val file: File = File(path)
+            var inputStream: InputStream? = null
+            var outputStream: OutputStream? = null
+            try {
+                val fileReader = ByteArray(4096)
+                val fileSize = body.contentLength()
+                var fileSizeDownloaded: Long = 0
+                inputStream = body.byteStream()
+                outputStream = FileOutputStream(file)
+                while (true) {
+                    val read: Int = inputStream.read(fileReader)
+                    if (read == -1) {
+                        break
+                    }
+                    outputStream.write(fileReader, 0, read)
+                    fileSizeDownloaded += read.toLong()
+                    println("file download: $fileSizeDownloaded of $fileSize")
+                }
+                outputStream.flush()
+                true
+            } catch (e: IOException) {
+                false
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close()
+                }
+                if (outputStream != null) {
+                    outputStream.close()
+                }
+            }
+        } catch (e: IOException) {
+            false
+        }
+    }
+
     fun loadLibrary():LiveData<List<AudioFromServer>>{
         val apiInterface = service!!.loadLibrary(token.toString())
 
@@ -142,7 +205,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun serverLoadLibrary(apiInterface: Call<List<AudioFromServer>>,
-                         voices: MutableLiveData<List<AudioFromServer>>){
+                         library: MutableLiveData<List<AudioFromServer>>){
         apiInterface.enqueue(object : Callback<List<AudioFromServer>> {
             override fun onResponse(call: Call<List<AudioFromServer>>, response: Response<List<AudioFromServer>>) {
                 library.postValue(response.body())
@@ -239,9 +302,6 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun process(voiceID: Int): LiveData<String> {
-        //TODO: server process audio than save new one
-        // input: chosen voice + recordingPath
-
         val file = File(controller.recordingPath)
         println("\n\n\n" + file.absolutePath + "\n\n\n")
 
@@ -267,6 +327,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         apiInterface.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 result.postValue(response.body()?.toString())
+
+                // TODO save file to server.resultPath
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {

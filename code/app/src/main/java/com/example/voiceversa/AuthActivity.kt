@@ -105,10 +105,6 @@ class AuthActivity : AppCompatActivity() {
             if (!it.isNullOrEmpty()) {
                 user = User(login_text.text.toString(), token = it)
 
-                if (key == "signin") {
-                    // TODO: download user info
-                }
-
                 val intent = Intent(this, ProcessActivity::class.java)
                 startActivity(intent)
             } else {

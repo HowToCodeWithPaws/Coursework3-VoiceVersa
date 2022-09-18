@@ -129,7 +129,14 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
                     var origin = "voice"
                     var name  = voice_from_server.name
-                    array.add(Audio(voice_from_server.id, name, origin, controller.voicesPath + "/" + name + ".mp3"))
+
+                    controller.downloadAudioByURL(voice_from_server.url, controller.voicesPath + "/" + name + ".mp3").observe(this){
+                        if(it == false){
+                            Toast.makeText(this, "К сожалению, не удалось загрузить голос "+name+" с сервера. Попробуйте позже.", Toast.LENGTH_LONG).show()
+                        }else{
+                            array.add(Audio(voice_from_server.id, name, origin, controller.voicesPath + "/" + name + ".mp3"))
+                        }
+                    }
                 }
                 user.voices = array
 
