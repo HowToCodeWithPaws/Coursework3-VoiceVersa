@@ -245,15 +245,14 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun signInOrUp(username: String, password: String, key: String): LiveData<String> {
         Log.d("TOKEN", "Start")
-        val apiInterface = if (key == "signin") {
-            service!!.authorize(LoginRequest(username, password))
+        if (key == "signin") {
+            val apiInterface = service!!.authorize(LoginRequest(username, password))
+            serverSignIn(apiInterface, token)
         } else if (key == "signup") {
-            service!!.signUp(username, password)
-        } else {
-            null
+            val request = LoginRequest(username, password)
+            val apiInterface = service!!.signUp(request)
+            serverSignUp(apiInterface, token, request)
         }
-
-        serverSignIn(apiInterface!!, token)
 
         return token
     }
@@ -265,6 +264,20 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             }
 
             override fun onFailure(call: Call<Token>, t: Throwable) {
+                token.postValue(null)
+                Log.d("TOKEN", "FAILED: ${t.message}")
+            }
+        })
+    }
+
+    private fun serverSignUp(apiInterface: Call<Any>, token: MutableLiveData<String>, request: LoginRequest) {
+        apiInterface.enqueue(object : Callback<Any> {
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                val loginApiInterface = service!!.authorize(request)
+                serverSignIn(loginApiInterface, token)
+            }
+
+            override fun onFailure(call: Call<Any>, t: Throwable) {
                 token.postValue(null)
                 Log.d("TOKEN", "FAILED: ${t.message}")
             }

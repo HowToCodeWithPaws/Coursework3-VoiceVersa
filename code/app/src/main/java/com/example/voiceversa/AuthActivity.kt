@@ -3,6 +3,7 @@ package com.example.voiceversa
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -81,6 +82,7 @@ class AuthActivity : AppCompatActivity() {
             password_text.text.toString(),
             key
         ).observe(this) {
+            Log.d("AUTH", " $it")
             if (!it.isNullOrEmpty()) {
                 user = User(login_text.text.toString(), token = it)
 
