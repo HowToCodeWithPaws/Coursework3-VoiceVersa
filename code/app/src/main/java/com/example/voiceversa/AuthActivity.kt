@@ -3,9 +3,12 @@ package com.example.voiceversa
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +32,7 @@ class AuthActivity : AppCompatActivity() {
 
     lateinit var login_text: EditText
     lateinit var password_text :EditText
+    var showing_password = false
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +48,12 @@ class AuthActivity : AppCompatActivity() {
          login_text = findViewById<EditText>(R.id.login)
          password_text = findViewById<EditText>(R.id.password)
 
+        password_text.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
         val sign_in_button = findViewById<Button>(R.id.sign_in)
         val sign_up_button = findViewById<Button>(R.id.sign_up)
         val guest_button = findViewById<Button>(R.id.guest)
+        val eye_button = findViewById<Button>(R.id.password_eye)
 
         if (!controller.online){
             sign_in_button.isEnabled = false
@@ -72,6 +79,18 @@ class AuthActivity : AppCompatActivity() {
             user = User("", "")
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
+        }
+
+        eye_button.setOnClickListener{
+            if(!showing_password){
+                password_text.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                eye_button.setBackgroundResource(R.drawable.eye_closed)
+                showing_password = true
+            }else{
+                password_text.transformationMethod = PasswordTransformationMethod.getInstance()
+               eye_button.setBackgroundResource(R.drawable.eye_open)
+                showing_password = false
+            }
         }
     }
 
