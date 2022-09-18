@@ -90,11 +90,11 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         MutableLiveData<String>()
     }
 
-    private val voices: MutableLiveData<List<VoiceFromServer>> by lazy {
+    private val voices: MutableLiveData<AudioListResponse<VoiceFromServer>> by lazy {
         MutableLiveData<List<VoiceFromServer>>()
     }
 
-    private val library: MutableLiveData<List<AudioFromServer>> by lazy {
+    private val library: MutableLiveData<AudioListResponse<AudioFromServer>> by lazy {
         MutableLiveData<List<AudioFromServer>>()
     }
 
@@ -196,7 +196,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         }
     }
 
-    fun loadLibrary():LiveData<List<AudioFromServer>>{
+    fun loadLibrary():LiveData<AudioListResponse<AudioFromServer>>{
         val apiInterface = service!!.loadLibrary(token.toString())
 
         serverLoadLibrary(apiInterface, library)
@@ -204,22 +204,22 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return library
     }
 
-    fun serverLoadLibrary(apiInterface: Call<List<AudioFromServer>>,
-                         library: MutableLiveData<List<AudioFromServer>>){
-        apiInterface.enqueue(object : Callback<List<AudioFromServer>> {
-            override fun onResponse(call: Call<List<AudioFromServer>>, response: Response<List<AudioFromServer>>) {
+    fun serverLoadLibrary(apiInterface: Call<AudioListResponse<AudioFromServer>>,
+                         library: MutableLiveData<AudioListResponse<AudioFromServer>>){
+        apiInterface.enqueue(object : Callback<AudioListResponse<AudioFromServer>> {
+            override fun onResponse(call: Call<AudioListResponse<AudioFromServer>>, response: Response<AudioListResponse<AudioFromServer>>) {
                 library.postValue(response.body())
                 Log.d("LIB", "SUCCESS: ${response.body()}")
             }
 
-            override fun onFailure(call: Call<List<AudioFromServer>>, t: Throwable) {
+            override fun onFailure(call: Call<AudioListResponse<AudioFromServer>>, t: Throwable) {
                 library.postValue(null)
                 Log.d("LIB", "ERROR: ${t.message}")
             }
         })
     }
 
-    fun loadVoices():LiveData<List<VoiceFromServer>>{
+    fun loadVoices():LiveData<AudioListResponse<VoiceFromServer>>{
         val apiInterface = service!!.loadVoices(token.toString())
 
         serverLoadVoices(apiInterface, voices)
@@ -227,14 +227,14 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return voices
     }
 
-    fun serverLoadVoices(apiInterface: Call<List<VoiceFromServer>>,
-                         voices: MutableLiveData<List<VoiceFromServer>>){
-        apiInterface.enqueue(object : Callback<List<VoiceFromServer>> {
-            override fun onResponse(call: Call<List<VoiceFromServer>>, response: Response<List<VoiceFromServer>>) {
+    fun serverLoadVoices(apiInterface: Call<AudioListResponse<VoiceFromServer>>,
+                         voices: MutableLiveData<AudioListResponse<VoiceFromServer>>){
+        apiInterface.enqueue(object : Callback<AudioListResponse<VoiceFromServer>> {
+            override fun onResponse(call: Call<AudioListResponse<VoiceFromServer>>, response: Response<AudioListResponse<VoiceFromServer>>) {
                 voices.postValue(response.body())
             }
 
-            override fun onFailure(call: Call<List<VoiceFromServer>>, t: Throwable) {
+            override fun onFailure(call: Call<AudioListResponse<VoiceFromServer>>, t: Throwable) {
                 voices.postValue(null)
             }
         })

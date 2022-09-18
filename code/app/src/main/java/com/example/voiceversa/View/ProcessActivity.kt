@@ -122,10 +122,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     fun getVoices(){
         controller.loadVoices().observe(this){
-            if (!it.isNullOrEmpty()) {
+            if (!it.results.isNullOrEmpty()) {
 
                 var array = ArrayList<Audio>()
-                for (voice_from_server in it){
+                for (voice_from_server in it.results){
 
                     var origin = "voice"
                     var name  = voice_from_server.name

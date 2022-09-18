@@ -1,9 +1,6 @@
 package com.example.voiceversa.Controller
 
-import com.example.voiceversa.Model.AudioFromServer
-import com.example.voiceversa.Model.LoginRequest
-import com.example.voiceversa.Model.Token
-import com.example.voiceversa.Model.VoiceFromServer
+import com.example.voiceversa.Model.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -36,10 +33,10 @@ interface AudioApiService {
     fun signUp(@Body loginRequest: LoginRequest): Call<Any>
 
     @GET("/audio/")
-    fun loadLibrary(@Header("Authorization") token: String): Call<List<AudioFromServer>>
+    fun loadLibrary(@Header("Authorization") token: String): Call<AudioListResponse<AudioFromServer>>
 
     @GET("/voices/")
-    fun loadVoices(@Header("Authorization") token: String): Call<List<VoiceFromServer>>
+    fun loadVoices(@Header("Authorization") token: String): Call<AudioListResponse<VoiceFromServer>>
 
     @GET
     fun downloadFileWithDynamicUrlSync(@Header("Authorization") token: String, @Url fileUrl: String?): Call<ResponseBody>

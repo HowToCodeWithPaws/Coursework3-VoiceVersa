@@ -32,7 +32,8 @@ class NestedListAdapter(
             with(listList[position]) {
                 binding.tvListName.text = this.name
                 var array : ArrayList<Audio>? = null
-                if (listList[position].name == "Сохраненные записи") {
+                if (listList[position].name == "Со" +
+                    "храненные записи") {
                     array = user.audios.filter { it.source == "recording" } as ArrayList<Audio>
                 } else {
                     array = user.audios.filter { it.source == "result" } as ArrayList<Audio>
