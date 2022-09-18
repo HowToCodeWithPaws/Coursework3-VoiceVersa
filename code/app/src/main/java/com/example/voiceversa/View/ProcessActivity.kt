@@ -155,7 +155,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @RequiresApi(Build.VERSION_CODES.O)
     fun setVoices() {
         val voices = readAudioNames(controller.voicesPath)
-        if (voices.isEmpty()) playVoiceBtn.isEnabled = false
+        playVoiceBtn.isEnabled = !voices.isEmpty()
 
         println("\n\n\n\n voices " + voices + " \n\n\n\n")
   //      var array = ArrayList<Audio>()
