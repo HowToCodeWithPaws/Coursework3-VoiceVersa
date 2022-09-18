@@ -33,7 +33,7 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
                 for (audio_from_server in it){
                     var name = audio_from_server.audio.name
                     var origin = if (name.contains("recording")) "recording" else "result"
-                    array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
+                    array.add(Audio(audio_from_server.id.toString() ,name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
 
                 }
                 user.audios = array
