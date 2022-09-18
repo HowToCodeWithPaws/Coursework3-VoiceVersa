@@ -140,7 +140,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 }
                 user.voices = array
 
-                setVoices()
+
+                var timer = object : CountDownTimer(10000, 1000) {
+                    override fun onTick(millisUntilFinished: Long) {}
+
+                    override fun onFinish() {
+                        setVoices()
+                    }
+                }
+
+                timer?.start()
+
+
             } else {
 
                 Toast.makeText(
