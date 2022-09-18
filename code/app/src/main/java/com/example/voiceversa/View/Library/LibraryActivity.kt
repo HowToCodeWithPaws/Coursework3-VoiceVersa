@@ -34,12 +34,16 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
 
                     var name = audio_from_server.audio.name
                     var origin = if (name.contains("recording")) "recording" else "result"
-                    array.add(Audio(audio_from_server.id ,name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
 
+                    controller.downloadAudioByURL(audio_from_server.url, controller.savedPath + "/" + name + ".mp3").observe(this){
+                        if(it == false){
+                            Toast.makeText(this, "К сожалению, не удалось загрузить голос "+name+" с сервера. Попробуйте позже.", Toast.LENGTH_LONG).show()
+                        }else{
+                            array.add(Audio(audio_from_server.id, name, origin, controller.savedPath + "/" + name + ".mp3"))
+                        }
+                    }
                 }
                 user.audios = array
-
-                //TODO сохранить аудио как файлы в нужную папку - savedPath
             } else {
 
                 Toast.makeText(

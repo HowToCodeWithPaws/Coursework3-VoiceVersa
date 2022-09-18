@@ -122,7 +122,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     fun getVoices(){
         controller.loadVoices().observe(this){
-            if (!it.results.isNullOrEmpty()) {
+            if (it.results.isNotEmpty()) {
 
                 var array = ArrayList<Audio>()
                 for (voice_from_server in it.results){
@@ -704,9 +704,19 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
         controller.process(voiceId).observe(this) {
             if (!it.isNullOrEmpty()) {
-                processed = true
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
-                getPlayableResult()
+                controller.downloadAudioByURL(it.toString(), controller.resultPath).observe(this){
+                    if (it) {
+                            processed = true
+                            getPlayableResult()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Не получилось загрузить результат с сервера! Попробуйте в другой раз",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             } else {
 
                 Toast.makeText(
