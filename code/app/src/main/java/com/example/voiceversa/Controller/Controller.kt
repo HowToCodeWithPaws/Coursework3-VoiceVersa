@@ -91,11 +91,11 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     private val voices: MutableLiveData<AudioListResponse<VoiceFromServer>> by lazy {
-        MutableLiveData<List<VoiceFromServer>>()
+        MutableLiveData<AudioListResponse<VoiceFromServer>>()
     }
 
     private val library: MutableLiveData<AudioListResponse<AudioFromServer>> by lazy {
-        MutableLiveData<List<AudioFromServer>>()
+        MutableLiveData<AudioListResponse<AudioFromServer>>()
     }
 
     private val requestResult : MutableLiveData<Any> by lazy {
@@ -230,7 +230,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun serverLoadVoices(apiInterface: Call<AudioListResponse<VoiceFromServer>>,
                          voices: MutableLiveData<AudioListResponse<VoiceFromServer>>){
         apiInterface.enqueue(object : Callback<AudioListResponse<VoiceFromServer>> {
-            override fun onResponse(call: Call<AudioListResponse<VoiceFromServer>>, response: Response<AudioListResponse<VoiceFromServer>>) {
+            override fun onResponse(call: Call<AudioListResponse<VoiceFromServer>>,
+                                    response: Response<AudioListResponse<VoiceFromServer>>) {
                 voices.postValue(response.body())
             }
 
