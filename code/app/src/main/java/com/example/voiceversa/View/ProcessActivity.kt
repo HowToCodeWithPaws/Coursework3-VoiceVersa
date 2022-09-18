@@ -703,9 +703,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 voiceId = one_voice.ID
         }
         controller.process(voiceId).observe(this) {
-            if (it.url.isNotEmpty()) {
+            if (it != null) {
+                val url = it.url
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
-                controller.downloadAudioByURL(it.url, controller.resultPath).observe(this){
+                controller.downloadAudioByURL(url, controller.resultPath).observe(this){
                     if (it) {
                             processed = true
                             getPlayableResult()
