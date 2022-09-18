@@ -28,9 +28,9 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
 
     fun getAudios(){
         controller.loadLibrary().observe(this){
-            if (!it.isNullOrEmpty()) {
+            if (it.results.isNotEmpty()) {
                 var array = ArrayList<Audio>()
-                for (audio_from_server in it){
+                for (audio_from_server in it.results){
 
                     var name = audio_from_server.audio.name
                     var origin = if (name.contains("recording")) "recording" else "result"
