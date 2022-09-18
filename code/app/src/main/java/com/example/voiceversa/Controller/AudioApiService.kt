@@ -14,8 +14,8 @@ interface AudioApiService {
     @POST("/audio/")
     fun save(@Part("audio") audio: MultipartBody.Part, @Header("Authorization") token: String): Call<Any>
 
-    @DELETE("/audio/")
-    fun delete(@Part("name") name: String, @Header("Authorization") token: String): Call<Any>
+    @DELETE("/audio/{id}")
+    fun delete(@Path("id") id: Int, @Header("Authorization") token: String): Call<Any>
 
     @Multipart
     @POST("/audio/")
