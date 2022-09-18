@@ -120,7 +120,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
                                     parentAdapter.notifyItemRemoved(index)
                                     parentAdapter.notifyItemRangeChanged(position, audios.size);
 
-                                    controller.deleteAudio(audio.title)//.observe(){
+                                    controller.deleteAudio(audio.ID)//.observe(){
                                  //       if(it == null){
                                    //         Toast.makeText(
                                      //           controller.context,

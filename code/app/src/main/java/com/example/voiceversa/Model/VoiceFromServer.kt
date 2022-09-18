@@ -1,3 +1,3 @@
 package com.example.voiceversa.Model
 
-data class VoiceFromServer(val id: String)// Todo path?
+data class VoiceFromServer(val id: Int, val name : String)// Todo path?

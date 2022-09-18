@@ -5,7 +5,7 @@ import androidx.annotation.RequiresApi
 import java.time.Instant
 import java.util.*
 
-class Audio @RequiresApi(Build.VERSION_CODES.O) constructor( var ID : String = "", title_: String = "новое аудио", var source: String = "recording", var url: String = "",
+class Audio @RequiresApi(Build.VERSION_CODES.O) constructor( var ID : Int = -1, title_: String = "новое аудио", var source: String = "recording", var url: String = "",
                                                             duration_: Int = 0, date_: Date = Date.from(Instant.now()) ) {
 
     var title: String  = "новое аудио"

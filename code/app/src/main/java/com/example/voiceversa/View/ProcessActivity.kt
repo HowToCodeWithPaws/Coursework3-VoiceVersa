@@ -98,7 +98,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         getPermissions()
         setListeners()
         getVoices()
-        setVoices()
         setEnabled()
         setMenuListeners()
     }
@@ -124,8 +123,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     fun getVoices(){
         controller.loadVoices().observe(this){
             if (!it.isNullOrEmpty()) {
+
+                var array = ArrayList<Audio>()
+                for (voice_from_server in it){
+
+                    var origin = "voice"
+                    var name  = voice_from_server.name
+                    array.add(Audio(voice_from_server.id, name, origin, controller.voicesPath + "/" + name + ".mp3"))
+                }
+                user.voices = array
+
                 //TODO сохранить голоса как файлы в нужную папку - voicesPath
-      //          setVoices()
+                setVoices()
             } else {
 
                 Toast.makeText(
@@ -142,14 +151,14 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         val voices = readAudioNames(controller.voicesPath)
         if (voices.isEmpty()) playVoiceBtn.isEnabled = false
 
-        var array = ArrayList<Audio>()
+  //      var array = ArrayList<Audio>()
 
-        for (name in voices) {
-            var origin = "voice"
-            array.add(Audio(name, origin, controller.voicesPath + "/" + name + ".mp3"))//TODO: read data like date of creation+ id
-        }
+    //    for (name in voices) {
+      //      var origin = "voice"
+        //    array.add(Audio(name, origin, controller.voicesPath + "/" + name + ".mp3"))//TODO: read data like date of creation+ id
+        //}
 
-        user.voices = array
+        //user.voices = array
 
         val adapterVoices =
             ArrayAdapter(
@@ -670,8 +679,12 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun process(view: View) {
-        controller.process(1).observe(this) {
-            //TODO get voice id
+        var voiceId = -1
+        for (one_voice in user.voices){
+            if(one_voice.title == voice)
+                voiceId = one_voice.ID
+        }
+        controller.process(voiceId).observe(this) {
             if (!it.isNullOrEmpty()) {
                 processed = true
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
