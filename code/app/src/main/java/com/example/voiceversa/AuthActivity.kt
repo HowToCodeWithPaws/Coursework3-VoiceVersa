@@ -6,33 +6,26 @@ import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.example.voiceversa.Controller.AudioApiService
 import com.example.voiceversa.Controller.Controller
-import com.example.voiceversa.Controller.makeDirectories
-import com.example.voiceversa.Controller.readAudioNames
-import com.example.voiceversa.Model.Audio
 import com.example.voiceversa.Model.User
 import com.example.voiceversa.View.Settings.ProcessActivity
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.time.Instant
 import java.util.*
 
 lateinit var user: User
-
 lateinit var controller: Controller
 
 class AuthActivity : AppCompatActivity() {
 
-    lateinit var login_text: EditText
-    lateinit var password_text :EditText
-    var showing_password = false
+    private lateinit var loginText: EditText
+    private lateinit var passwordText: EditText
+    private lateinit var signInButton: Button
+    private lateinit var signUpButton: Button
+    private lateinit var guestButton: Button
+    private lateinit var eyeButton: Button
+    private var showingPassword = false
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,19 +38,24 @@ class AuthActivity : AppCompatActivity() {
         setContentView(R.layout.activity_auth)
         Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"
 
-         login_text = findViewById<EditText>(R.id.login)
-         password_text = findViewById<EditText>(R.id.password)
+        loginText = findViewById(R.id.login)
+        passwordText = findViewById(R.id.password)
+        signInButton = findViewById(R.id.sign_in)
+        signUpButton = findViewById(R.id.sign_up)
+        guestButton = findViewById(R.id.guest)
+        eyeButton = findViewById(R.id.password_eye)
 
-        password_text.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        passwordText.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
-        val sign_in_button = findViewById<Button>(R.id.sign_in)
-        val sign_up_button = findViewById<Button>(R.id.sign_up)
-        val guest_button = findViewById<Button>(R.id.guest)
-        val eye_button = findViewById<Button>(R.id.password_eye)
+        checkOnline()
+        setListeners()
+        checkSaved()
+    }
 
-        if (!controller.online){
-            sign_in_button.isEnabled = false
-            sign_up_button.isEnabled = false
+    private fun checkOnline() {
+        if (!controller.online) {
+            signInButton.isEnabled = false
+            signUpButton.isEnabled = false
             Toast.makeText(
                 this,
                 "К сожалению, вы не подключены к серверу. Вам доступен определенный оффлайн " +
@@ -66,47 +64,62 @@ class AuthActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
 
-        sign_in_button.setOnClickListener {
+    private fun setListeners() {
+
+        signInButton.setOnClickListener {
             notGuest("signin")
         }
 
-        sign_up_button.setOnClickListener {
+        signUpButton.setOnClickListener {
             notGuest("signup")
         }
 
-        guest_button.setOnClickListener {
+        guestButton.setOnClickListener {
             user = User("", "")
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }
 
-        eye_button.setOnClickListener{
-            if(!showing_password){
-                password_text.transformationMethod = HideReturnsTransformationMethod.getInstance()
-                eye_button.setBackgroundResource(R.drawable.eye_closed)
-                showing_password = true
-            }else{
-                password_text.transformationMethod = PasswordTransformationMethod.getInstance()
-               eye_button.setBackgroundResource(R.drawable.eye_open)
-                showing_password = false
+        eyeButton.setOnClickListener {
+            if (!showingPassword) {
+                passwordText.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                eyeButton.setBackgroundResource(R.drawable.eye_closed)
+                showingPassword = true
+            } else {
+                passwordText.transformationMethod = PasswordTransformationMethod.getInstance()
+                eyeButton.setBackgroundResource(R.drawable.eye_open)
+                showingPassword = false
             }
         }
     }
 
+    private fun checkSaved() {
+        try {
+            val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+            val nameSaved = sharedPref.getString("name", "").toString()
+            val passwordSaved = sharedPref.getString("password", "").toString()
+            val tokenSaved = sharedPref.getString("token", "").toString()
+            if (nameSaved.isNotEmpty() && passwordSaved.isNotEmpty() && tokenSaved.isNotEmpty()) {
+                passwordText.setText(passwordSaved, TextView.BufferType.EDITABLE)
+                loginText.setText(nameSaved, TextView.BufferType.EDITABLE)
+                controller.token.postValue(tokenSaved)
+                notGuest("signin")
+            }
+        } catch (e: Exception) {
+        }
+    }
 
-    fun notGuest(key: String) {
+    private fun notGuest(key: String) {
         controller.signInOrUp(
-            login_text.text.toString(),
-            password_text.text.toString(),
+            loginText.text.toString(),
+            passwordText.text.toString(),
             key
         ).observe(this) {
             Log.d("AUTH", " $it")
             if (!it.isNullOrEmpty()) {
-                user = User(login_text.text.toString(), token = it)
-
-                val intent = Intent(this, ProcessActivity::class.java)
-                startActivity(intent)
+               proceedAuthorized(it)
             } else {
                 val message = if (key == "signin") {
                     "Вы ввели неверные данные для авторизации. Попробуйте снова."
@@ -122,4 +135,20 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
+    private fun proceedAuthorized(token: String){
+        user = User(loginText.text.toString(), token = token)
+
+        val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("name", loginText.text.toString())
+            apply()
+            putString("password", passwordText.text.toString())
+            apply()
+            putString("token", token)
+            apply()
+        }
+
+        val intent = Intent(this, ProcessActivity::class.java)
+        startActivity(intent)
+    }
 }

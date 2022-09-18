@@ -82,7 +82,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     private var service: AudioApiService? = null
 
-    private val token: MutableLiveData<String> by lazy {
+    val token: MutableLiveData<String> by lazy {
         MutableLiveData<String>()
     }
 

@@ -28,6 +28,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         Objects.requireNonNull(supportActionBar)!!.hide()
         val topbar = findViewById<Toolbar>(R.id.settings_top_bar)
+
         topbar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.account) {
                 val intent = Intent(this, AccountActivity::class.java)
@@ -63,15 +64,25 @@ class SettingsActivity : AppCompatActivity() {
                 val intent = Intent(this, AuthActivity::class.java)
                 startActivity(intent)
             }else{
-
                 AlertDialog.Builder(this)
                     .setTitle("Внимание! Это действие будет иметь последствия.")
                     .setMessage("Вы точно хотите выйти из аккаунта? Данные приложения больше не" +
                             " будут синхронизироваться.")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton(android.R.string.yes,
-                        DialogInterface.OnClickListener { dialog, whichButton ->
+                        DialogInterface.OnClickListener { _, _ ->
                             user = User("")
+
+                            val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+                            with(sharedPref.edit()) {
+                                remove("name")
+                                apply()
+                                remove("password")
+                                apply()
+                                remove("token")
+                                apply()
+                            }
+
                             Toast.makeText(
                                 this,
                                 "Вы вышли из аккаунта, теперь вы используете приложение в режиме гостя.",
