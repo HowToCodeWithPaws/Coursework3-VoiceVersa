@@ -220,6 +220,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun loadVoices():LiveData<AudioListResponse<VoiceFromServer>>{
+        Log.d("VOICES", "Token - ${token.value}")
         val apiInterface = service!!.loadVoices(token.value!!)
 
         serverLoadVoices(apiInterface, voices)
@@ -232,7 +233,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         apiInterface.enqueue(object : Callback<AudioListResponse<VoiceFromServer>> {
             override fun onResponse(call: Call<AudioListResponse<VoiceFromServer>>,
                                     response: Response<AudioListResponse<VoiceFromServer>>) {
-                voices.postValue(response.body())
+                if (response.body() != null)
+                    voices.postValue(response.body())
             }
 
             override fun onFailure(call: Call<AudioListResponse<VoiceFromServer>>, t: Throwable) {
@@ -279,7 +281,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     private fun serverSignIn(apiInterface: Call<Token>, token: MutableLiveData<String>) {
         apiInterface.enqueue(object : Callback<Token> {
             override fun onResponse(call: Call<Token>, response: Response<Token>) {
-                token.postValue(response.body()?.token)
+                token.postValue("Token ${response.body()?.token}")
             }
 
             override fun onFailure(call: Call<Token>, t: Throwable) {
@@ -311,8 +313,9 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             )
 
         val body = MultipartBody.Part.createFormData("recording", file.name, requestFile)
-        val voice = "${voiceID}".toRequestBody("text/plain".toMediaTypeOrNull())
-        val apiInterface = service!!.process(voice, body, token.value!!)
+        val voice = "$voiceID".toRequestBody("text/plain".toMediaTypeOrNull())
+        Log.d("PROCESS", "Token - ${token.value}")
+        val apiInterface = service!!.process(voice, body, token.value!!)//replace 230 with voice code
 
         serverProcess(apiInterface, result)
 
@@ -322,10 +325,13 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     private fun serverProcess(apiInterface: Call<ResultFromServer>, result: MutableLiveData<ResultFromServer>) {
         apiInterface.enqueue(object : Callback<ResultFromServer> {
             override fun onResponse(call: Call<ResultFromServer>, response: Response<ResultFromServer>) {
-                result.postValue(response.body())
+                Log.d("PROCESS", "SUCCESS - ${response.body()?.url}")
+                if (response.body() != null)
+                    result.postValue(response.body())
             }
 
             override fun onFailure(call: Call<ResultFromServer>, t: Throwable) {
+                Log.d("PROCESS", "FAIL - ${t.message}")
                 result.postValue(null)
             }
         })
