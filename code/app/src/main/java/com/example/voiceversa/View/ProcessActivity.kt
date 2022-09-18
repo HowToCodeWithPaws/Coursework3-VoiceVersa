@@ -140,7 +140,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 }
                 user.voices = array
 
-                //TODO сохранить голоса как файлы в нужную папку - voicesPath
                 setVoices()
             } else {
 
@@ -158,6 +157,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         val voices = readAudioNames(controller.voicesPath)
         if (voices.isEmpty()) playVoiceBtn.isEnabled = false
 
+        println("\n\n\n\n voices " + voices + " \n\n\n\n")
   //      var array = ArrayList<Audio>()
 
     //    for (name in voices) {
