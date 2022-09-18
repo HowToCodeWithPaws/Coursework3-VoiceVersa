@@ -13,8 +13,10 @@ import com.example.voiceversa.model.*
 import com.example.voiceversa.serverClasses.*
 import com.example.voiceversa.controller
 import com.example.voiceversa.user
+import com.example.voiceversa.view.controller
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
@@ -24,6 +26,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.*
+import java.util.concurrent.TimeUnit
 
 
 fun readAudioNames(path: String): ArrayList<String> {
@@ -115,9 +118,15 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         savedPath = makeDirectories(homePath, "saved")
 
         try {
+            val httpClient: OkHttpClient.Builder = OkHttpClient.Builder()
+                .callTimeout(10, TimeUnit.MINUTES)
+                .connectTimeout(10, TimeUnit.MINUTES)
+                .readTimeout(10, TimeUnit.MINUTES)
+                .writeTimeout(10, TimeUnit.MINUTES)
             val retrofit = Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient.build())
                 .build()
             service = retrofit.create(AudioApiService::class.java)
             online = true
@@ -293,14 +302,13 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun process(voiceID: Int): LiveData<ResultFromServer> {
         val file = File(controller.recordingPath)
 
-        val requestFile = file
-            .asRequestBody("audio/*".toMediaTypeOrNull()
+        val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull()
             )
 
-        val body = MultipartBody.Part.createFormData("recording", file.name, requestFile)
+        val body = MultipartBody.Part.createFormData("url", file.name, requestFile)
         val voice = "$voiceID".toRequestBody("text/plain".toMediaTypeOrNull())
         Log.d("PROCESS", "Token - ${token.value}")
-        val apiInterface = service!!.process(voice, body, token.value!!)
+        val apiInterface = service!!.process(voiceID, body, token.value!!)// TODO?: instead of voice
 
         serverProcess(apiInterface, result)
 

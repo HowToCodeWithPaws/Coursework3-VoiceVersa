@@ -22,7 +22,7 @@ interface AudioApiService {
 
     @Multipart
     @POST("/process/")
-    fun process(@Part("voice") voice: RequestBody, @Part audio: MultipartBody.Part,
+    fun process(@Part("voice") voice: Int, @Part audio: MultipartBody.Part,// TODO?: instead of RequestBody
                 @Header("Authorization") token: String): Call<ResultFromServer>
 
     @POST("/login/")
