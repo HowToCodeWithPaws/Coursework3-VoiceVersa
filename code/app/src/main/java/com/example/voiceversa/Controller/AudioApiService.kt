@@ -39,5 +39,5 @@ interface AudioApiService {
     fun loadVoices(@Header("Authorization") token: String): Call<AudioListResponse<VoiceFromServer>>
 
     @GET
-    fun downloadFileWithDynamicUrlSync(@Header("Authorization") token: String, @Url fileUrl: String?): Call<ResponseBody>
+    fun downloadFileWithDynamicUrlSync(@Url fileUrl: String?, @Header("Authorization") token: String): Call<ResponseBody>
 }

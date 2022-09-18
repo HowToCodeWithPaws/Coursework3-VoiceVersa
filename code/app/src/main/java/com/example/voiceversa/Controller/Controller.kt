@@ -136,7 +136,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun downloadAudioByURL(url: String, path: String):LiveData<Boolean>{
-        val apiInterface = service!!.downloadFileWithDynamicUrlSync(token.toString(), url)
+        val apiInterface = service!!.downloadFileWithDynamicUrlSync(url, token.value!!)
 
         serverDownloadAudioByURL(apiInterface, downloadBody, path)
 
@@ -197,7 +197,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun loadLibrary():LiveData<AudioListResponse<AudioFromServer>>{
-        val apiInterface = service!!.loadLibrary(token.toString())
+        val apiInterface = service!!.loadLibrary(token.value!!)
 
         serverLoadLibrary(apiInterface, library)
 
@@ -220,7 +220,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun loadVoices():LiveData<AudioListResponse<VoiceFromServer>>{
-        val apiInterface = service!!.loadVoices(token.toString())
+        val apiInterface = service!!.loadVoices(token.value!!)
 
         serverLoadVoices(apiInterface, voices)
 
@@ -242,7 +242,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun deleteAudio(id: Int): LiveData<Any> {
-        val apiInterface = service!!.delete(id, token.toString())
+        val apiInterface = service!!.delete(id, token.value!!)
 
         serverDeleteAudio(apiInterface, deleteResult)
 
@@ -272,6 +272,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             serverSignUp(apiInterface, token, request)
         }
 
+        user.token = token.value!!
         return token
     }
 
@@ -304,22 +305,16 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun process(voiceID: Int): LiveData<ResultFromServer> {
         val file = File(controller.recordingPath)
-        println("\n\n\n" + file.absolutePath + "\n\n\n")
 
         val requestFile = file
-            .asRequestBody("audio/*".toMediaTypeOrNull()//or "audio/mp3" idk
+            .asRequestBody("audio/*".toMediaTypeOrNull()
             )
 
         val body = MultipartBody.Part.createFormData("recording", file.name, requestFile)
-        val voice = "${230}".toRequestBody("text/plain".toMediaTypeOrNull())
-        val apiInterface = service!!.process(voice, body, token.toString())//replace 230 with voice code
+        val voice = "${voiceID}".toRequestBody("text/plain".toMediaTypeOrNull())
+        val apiInterface = service!!.process(voice, body, token.value!!)
 
         serverProcess(apiInterface, result)
-
-     //   File(this.homePath + "/recording.mp3").copyTo(// delete this, on finish save result to result
-       //     File(this.homePath + "/result.mp3"),
-         //   overwrite = true
-        //)
 
         return result
     }
@@ -339,12 +334,11 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun addToLibrary(audioPath: String): LiveData<Any> {
 
         var file: File = File(audioPath)
-        println("\n\n\n" + file.absolutePath + "\n\n\n")
 
         val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull())
 
         val body = MultipartBody.Part.createFormData("library", file.name, requestFile)
-        val apiInterface = service!!.save(body, token.toString())
+        val apiInterface = service!!.save(body, token.value!!)
         serverAddToLibrary(apiInterface, saveResult)
 
         return saveResult
@@ -381,7 +375,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
         val body =
             MultipartBody.Part.createFormData("request" + requestName, file.name, requestFile)
-        val apiInterface = service!!.request(body, token.toString())
+        val apiInterface = service!!.request(body, token.value!!)
         serverRequest(apiInterface, requestResult)
 
         return requestResult
