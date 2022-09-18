@@ -29,6 +29,15 @@ class LibraryActivity : AppCompatActivity(),  AdapterView.OnItemSelectedListener
     fun getAudios(){
         controller.loadLibrary().observe(this){
             if (!it.isNullOrEmpty()) {
+                var array = ArrayList<Audio>()
+                for (audio_from_server in it){
+                    var name = audio_from_server.audio.name
+                    var origin = if (name.contains("recording")) "recording" else "result"
+                    array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
+
+                }
+                user.audios = array
+
                 //TODO сохранить аудио как файлы в нужную папку - savedPath
             } else {
 
@@ -48,15 +57,15 @@ controller.context = this
 
         getAudios()
 
-        var names: ArrayList<String> = readAudioNames(controller.savedPath)
-        var array = ArrayList<Audio>()
+      //  var names: ArrayList<String> = readAudioNames(controller.savedPath)
+      //  var array = ArrayList<Audio>()
 
-        for (name in names) {
-            var origin = if (name.contains("recording")) "recording" else "result"
-            array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
-        }
+      //  for (name in names) {
+      //      var origin = if (name.contains("recording")) "recording" else "result"
+      //      array.add(Audio(name, origin, controller.savedPath + "/" + name + ".mp3"))//TODO: read data like date of creation
+      //  }
 
-        user.audios = array
+     //   user.audios = array
 
        setContentView(R.layout.activity_library)
         Objects.requireNonNull(supportActionBar)!!.hide()
