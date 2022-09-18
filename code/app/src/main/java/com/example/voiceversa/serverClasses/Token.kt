@@ -1,4 +1,4 @@
-package com.example.voiceversa.Model
+package com.example.voiceversa.serverClasses
 
 import com.google.gson.annotations.SerializedName
 

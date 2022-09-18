@@ -1,6 +1,5 @@
-package com.example.voiceversa.Controller
+package com.example.voiceversa.serverClasses
 
-import com.example.voiceversa.Model.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody

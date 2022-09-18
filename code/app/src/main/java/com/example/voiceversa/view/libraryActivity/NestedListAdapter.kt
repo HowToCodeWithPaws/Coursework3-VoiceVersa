@@ -1,15 +1,14 @@
-package com.example.voiceversa.View.Library
+package com.example.voiceversa.view.libraryActivity
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.voiceversa.Model.Audio
+import com.example.voiceversa.model.Audio
 import com.example.voiceversa.databinding.ListItemBinding
 import com.example.voiceversa.user
 import java.util.ArrayList
-
 
 class NestedListAdapter(
     private var listList: List<ListForRV>
@@ -26,41 +25,24 @@ class NestedListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         thisAdapter = this
         with(holder) {
             with(listList[position]) {
+
+                setUpArray(this, position)
+
                 binding.tvListName.text = this.name
-                var array : ArrayList<Audio>? = null
-                if (listList[position].name == "Со" +
-                    "храненные записи") {
-                    array = user.audios.filter { it.source == "recording" } as ArrayList<Audio>
-                } else {
-                    array = user.audios.filter { it.source == "result" } as ArrayList<Audio>
-                }
-
-                if (this.sort == "По названию") {
-                    array.sortBy { it.title }
-                } else if (this.sort == "По длительности"){
-                    array.sortBy { it.duration }
-                }else if (this.sort == "По давности"){
-                    array.sortBy { it.date }}
-
-                adapter = AudiosListAdapter(array)
                 binding.itemsList.adapter = adapter
-
                 binding.eyeOpen.visibility = if (this.expand) {
                     ImageView.VISIBLE
                 } else {
                     ImageView.INVISIBLE
                 }
-
                 binding.eyeClosed.visibility = if (!this.expand) {
                     ImageView.VISIBLE
                 } else {
                     ImageView.INVISIBLE
                 }
-
                 binding.expandedView.visibility = if (this.expand) View.VISIBLE else View.GONE
                 binding.cardLayout.setOnClickListener {
                     this.expand = !this.expand
@@ -68,6 +50,29 @@ class NestedListAdapter(
                 }
             }
         }
+    }
+
+    private fun setUpArray(list: ListForRV, position: Int) {
+
+        val array: ArrayList<Audio> = if (listList[position].name == "Сохраненные записи") {
+            user.audios.filter { it.source == "recording" } as ArrayList<Audio>
+        } else {
+            user.audios.filter { it.source == "result" } as ArrayList<Audio>
+        }
+
+        when (list.sort) {
+            "По названию" -> {
+                array.sortBy { it.title }
+            }
+            "По длительности" -> {
+                array.sortBy { it.duration }
+            }
+            "По давности" -> {
+                array.sortBy { it.date }
+            }
+        }
+
+        adapter = AudiosListAdapter(array)
     }
 
     override fun getItemCount(): Int {

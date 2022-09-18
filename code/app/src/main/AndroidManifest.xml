@@ -29,7 +29,7 @@
         </provider>
 
         <activity
-            android:name=".AuthActivity"
+            android:name=".view.AuthActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,28 +37,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AccountActivity"
+            android:name=".view.AccountActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Account" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.Settings.SettingsActivity"
+            android:name=".view.SettingsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Settings" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.Request.RequestActivity"
+            android:name=".view.RequestActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Request" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.Library.LibraryActivity"
+            android:name=".view.libraryActivity.LibraryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Library" />
@@ -66,7 +66,7 @@
         </activity>
 
         <activity
-            android:name=".View.Settings.ProcessActivity"
+            android:name=".view.ProcessActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.Process" />

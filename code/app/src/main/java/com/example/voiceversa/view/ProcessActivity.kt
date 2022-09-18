@@ -1,8 +1,7 @@
-package com.example.voiceversa.View.Settings
+package com.example.voiceversa.view
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -19,9 +18,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.voiceversa.*
-import com.example.voiceversa.Controller.readAudioNames
-import com.example.voiceversa.Model.Audio
-import com.example.voiceversa.Model.User
+import com.example.voiceversa.controller.readAudioNames
+import com.example.voiceversa.model.Audio
+import com.example.voiceversa.serverClasses.AudioListResponse
+import com.example.voiceversa.serverClasses.VoiceFromServer
 import java.io.*
 import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
@@ -69,8 +69,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         setContentView(R.layout.activity_process)
         Objects.requireNonNull(supportActionBar)!!.hide()
-        val topbar = findViewById<Toolbar>(R.id.top_bar)
-        topbar.setOnMenuItemClickListener { item: MenuItem ->
+        val topBar = findViewById<Toolbar>(R.id.top_bar)
+        topBar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.account) {
                 val intent = Intent(this, AccountActivity::class.java)
                 startActivity(intent)
@@ -78,18 +78,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             true
         }
 
-        voiceSpinner = findViewById<Spinner>(R.id.voicesSpinner)
-        attachRecBtn = findViewById<Button>(R.id.attachRecBtn)
-        processBtn = findViewById<Button>(R.id.processBtn)
-        playRecBtn = findViewById<Button>(R.id.playRecBtn)
-        playResBtn = findViewById<Button>(R.id.playResBtn)
-        playVoiceBtn = findViewById<Button>(R.id.playVoiceBtn)
-        positionRecBar = findViewById<SeekBar>(R.id.positionRecBar)
-        positionResBar = findViewById<SeekBar>(R.id.positionResBar)
-        elapsedTimeLabelRec = findViewById<TextView>(R.id.elapsedTimeLabelRec)
-        elapsedTimeLabelRes = findViewById<TextView>(R.id.elapsedTimeLabelRes)
-        totalTimeLabelRec = findViewById<TextView>(R.id.totalTimeLabelRec)
-        totalTimeLabelRes = findViewById<TextView>(R.id.totalTimeLabelRes)
+        voiceSpinner = findViewById(R.id.voicesSpinner)
+        attachRecBtn = findViewById(R.id.attachRecBtn)
+        processBtn = findViewById(R.id.processBtn)
+        playRecBtn = findViewById(R.id.playRecBtn)
+        playResBtn = findViewById(R.id.playResBtn)
+        playVoiceBtn = findViewById(R.id.playVoiceBtn)
+        positionRecBar = findViewById(R.id.positionRecBar)
+        positionResBar = findViewById(R.id.positionResBar)
+        elapsedTimeLabelRec = findViewById(R.id.elapsedTimeLabelRec)
+        elapsedTimeLabelRes = findViewById(R.id.elapsedTimeLabelRes)
+        totalTimeLabelRec = findViewById(R.id.totalTimeLabelRec)
+        totalTimeLabelRes = findViewById(R.id.totalTimeLabelRes)
         actionsRec = findViewById(R.id.actionsRec)
         actionsRes = findViewById(R.id.actionsRes)
         startRecBtn = findViewById(R.id.startRecBtn)
@@ -102,14 +102,14 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         setMenuListeners()
     }
 
-    fun setEnabled(){
+    private fun setEnabled() {
         playRecBtn.isEnabled = false
         playResBtn.isEnabled = false
         actionsRec.isEnabled = false
         actionsRes.isEnabled = false
         processBtn.isEnabled = false
 
-        if (!controller.online){
+        if (!controller.online) {
             Toast.makeText(
                 this,
                 "К сожалению, вы не подключены к серверу. Вам доступен определенный оффлайн " +
@@ -120,37 +120,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    fun getVoices(){
-        controller.loadVoices().observe(this){
-            if (it.results.isNotEmpty()) {
-
-                var array = ArrayList<Audio>()
-                for (voice_from_server in it.results){
-
-                    var origin = "voice"
-                    var name  = voice_from_server.name
-
-                    controller.downloadAudioByURL(voice_from_server.url, controller.voicesPath + "/" + name + ".mp3").observe(this){
-                        if(it == false){
-                            Toast.makeText(this, "К сожалению, не удалось загрузить голос "+name+" с сервера. Попробуйте позже.", Toast.LENGTH_LONG).show()
-                        }else{
-                            array.add(Audio(voice_from_server.id, name, origin, controller.voicesPath + "/" + name + ".mp3"))
-                        }
-                    }
-                }
-                user.voices = array
-
-
-                var timer = object : CountDownTimer(10000, 1000) {
-                    override fun onTick(millisUntilFinished: Long) {}
-
-                    override fun onFinish() {
-                        setVoices()
-                    }
-                }
-
-                timer?.start()
-
+    private fun getVoices() {
+        controller.loadVoices().observe(this) { list ->
+            if (list.results.isNotEmpty()) {
+                downloadAllInArray(list)
 
             } else {
 
@@ -163,20 +136,49 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    private fun downloadAllInArray(list: AudioListResponse<VoiceFromServer>) {
+        val array = ArrayList<Audio>()
+        for (voice_from_server in list.results) {
+            val origin = "voice"
+            val name = voice_from_server.name
+
+            controller.downloadAudioByURL(
+                voice_from_server.url,
+                controller.voicesPath + "/" + name + ".mp3"
+            ).observe(this) {
+                if (it == false) {
+                    Toast.makeText(
+                        this,
+                        "К сожалению, не удалось загрузить голос $name с сервера. Попробуйте позже.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    array.add(
+                        Audio(
+                            voice_from_server.id,
+                            name,
+                            origin,
+                            controller.voicesPath + "/" + name + ".mp3"
+                        )
+                    )
+                }
+            }
+        }
+        user.voices = array
+
+        val timer = object : CountDownTimer(10000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {}
+            override fun onFinish() {
+                setVoices()
+            }
+        }
+        timer.start()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setVoices() {
         val voices = readAudioNames(controller.voicesPath)
-        playVoiceBtn.isEnabled = !voices.isEmpty()
-
-        println("\n\n\n\n voices " + voices + " \n\n\n\n")
-  //      var array = ArrayList<Audio>()
-
-    //    for (name in voices) {
-      //      var origin = "voice"
-        //    array.add(Audio(name, origin, controller.voicesPath + "/" + name + ".mp3"))//TODO: read data like date of creation+ id
-        //}
-
-        //user.voices = array
+        playVoiceBtn.isEnabled = voices.isNotEmpty()
 
         val adapterVoices =
             ArrayAdapter(
@@ -189,7 +191,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         voiceSpinner.onItemSelectedListener = this
     }
 
-    fun getPermissions() {
+    private fun getPermissions() {
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -199,33 +201,17 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             val permissions = arrayOf(
-                android.Manifest.permission.RECORD_AUDIO,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
             )
             ActivityCompat.requestPermissions(this, permissions, 0)
         }
     }
 
-    fun setListeners() {
+    private fun setListeners() {
         startRecBtn.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                val permissions = arrayOf(
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-                ActivityCompat.requestPermissions(this, permissions, 0)
-            } else {
-                startRecording()
-            }
+            startRecording()
         }
 
         pauseRecBtn.setOnClickListener {
@@ -307,8 +293,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             val now = Date.from(Instant.now())
             val formatterDate = SimpleDateFormat("dd.MM.yyyy")
             val formatterTime = SimpleDateFormat("HH:mm")
-            val filename = "VoiceVersa_" + source + "_"+
-            formatterDate.format(now) + "_" + formatterTime.format(now) + ".mp3"
+            val filename = "VoiceVersa_" + source + "_" +
+                    formatterDate.format(now) + "_" + formatterTime.format(now) + ".mp3"
             controller.downloadAudio(path, filename)
             Toast.makeText(
                 this,
@@ -316,17 +302,17 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 Toast.LENGTH_SHORT
             ).show()
         } catch (e: Exception) {
-            println("Exception while saving " + source)
+            println("Exception while saving $source")
             e.printStackTrace()
             Toast.makeText(
                 this,
-                "Не удалось сохранить " + messageSource + " в загрузки, попробуйте в другой раз!",
+                "Не удалось сохранить $messageSource в загрузки, попробуйте в другой раз!",
                 Toast.LENGTH_SHORT
             ).show()
         }
     }
 
-    fun addAudioToLibrary(source: String, message: String, messageSource: String) {
+    private fun addAudioToLibrary(source: String, message: String, messageSource: String) {
         try {
             val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
             val currentDate = sdf.format(Date())
@@ -339,24 +325,28 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 message,
                 Toast.LENGTH_SHORT
             ).show()
+
+            controller.addToLibrary(controller.homePath + "/" + source + ".mp3").observe(this) {
+                if (it == null) {
+                    Toast.makeText(
+                        this,
+                        "К сожалению, не получилось добавить аудио в библиотеку на сервере. Попробуйте позже.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         } catch (e: Exception) {
-            println("Exception while adding " + source)
+            println("Exception while adding $source")
             e.printStackTrace()
             Toast.makeText(
                 this,
-                "Не удалось добавить " + messageSource + " в библиотеку, попробуйте в другой раз!",
+                "Не удалось добавить $messageSource в библиотеку, попробуйте в другой раз!",
                 Toast.LENGTH_SHORT
             ).show()
         }
-
-        controller.addToLibrary(controller.homePath + "/" + source + ".mp3").observe(this){
-            if(it == null){
-                Toast.makeText(this, "К сожалению, не получилось добавить аудио в библиотеку на сервере. Попробуйте позже.", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
-    fun shareAudio(path: String, source: String, messageSource: String) {
+    private fun shareAudio(path: String, source: String, messageSource: String) {
         try {
             val file = File(path)
             if (file.exists()) {
@@ -367,17 +357,17 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 )
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                intent.setType("audio/mp3")
+                intent.type = "audio/mp3"
                 intent.putExtra(Intent.EXTRA_STREAM, uri)
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
                 startActivity(intent)
             }
         } catch (e: Exception) {
-            println("Exception while sharing " + source)
+            println("Exception while sharing $source")
             e.printStackTrace()
             Toast.makeText(
                 this,
-                "Не удалось отправить " + messageSource + ", попробуйте в другой раз!",
+                "Не удалось отправить $messageSource, попробуйте в другой раз!",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -394,7 +384,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-              getAudioFromStorage(data, controller.homePath + "/recording.mp3")
+                getAudioFromStorage(data, controller.homePath + "/recording.mp3")
             } else {
                 Toast.makeText(this, "Пожалуйста, выберите аудиозапись!", Toast.LENGTH_SHORT).show()
             }
@@ -402,16 +392,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun getAudioFromStorage(data: Intent?, destinationPath: String){
+    private fun getAudioFromStorage(data: Intent?, destinationPath: String) {
         try {
-            val uri: Uri = data?.getData()!!
+            val uri: Uri = data?.data!!
             val src = uri.path!!
             var subsrc = ""
 
             if (src.contains("storage")) {
                 subsrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
             } else if (src.contains("primary")) {
-                subsrc = "/storage/emulated/0/" + src.subSequence(src.indexOf("primary") + 8, src.length).toString()
+                subsrc =
+                    "/storage/emulated/0/" + src.subSequence(src.indexOf("primary") + 8, src.length)
+                        .toString()
             }
 
             val source: File = File(subsrc).absoluteFile
@@ -432,23 +424,21 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun copy(source: File, destination: File) {
-        var inp: FileChannel = FileInputStream(source).getChannel()
-        var out: FileChannel = FileOutputStream(destination).getChannel()
+        val inp: FileChannel = FileInputStream(source).channel
+        val out: FileChannel = FileOutputStream(destination).channel
 
         try {
-            inp.transferTo(0, inp.size(), out);
+            inp.transferTo(0, inp.size(), out)
         } catch (e: Exception) {
             println("Error in copying the file\n")
             e.printStackTrace()
         } finally {
-            if (inp != null)
-                inp.close();
-            if (out != null)
-                out.close();
+            inp.close()
+            out.close()
         }
     }
 
-    private fun mediarecorderInit() {
+    private fun mediaRecorderInit() {
         mediaRecorder = MediaRecorder()
         mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -470,7 +460,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             getPlayableRecording()
         } else {
             try {
-                mediarecorderInit()
+                mediaRecorderInit()
                 mediaRecorder?.start()
                 state = true
                 playRecBtn.isEnabled = false
@@ -485,9 +475,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     }
 
-
     @SuppressLint("RestrictedApi", "SetTextI18n")
-    @TargetApi(Build.VERSION_CODES.N)
     private fun pauseRecording() {
         if (state) {
             if (!recordingStopped) {
@@ -502,7 +490,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     @SuppressLint("RestrictedApi", "SetTextI18n")
-    @TargetApi(Build.VERSION_CODES.N)
     private fun resumeRecording() {
         Toast.makeText(this, "Аудиозапись продолжена", Toast.LENGTH_SHORT).show()
         mediaRecorder?.resume()
@@ -513,11 +500,11 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @SuppressLint("HandlerLeak")
     var handler = object : Handler() {
         override fun handleMessage(msg: Message) {
-            var currentPosition = msg.what
+            val currentPosition = msg.what
 
             positionRecBar.progress = currentPosition
 
-            var elapsedTime = createTimeLabel(currentPosition)
+            val elapsedTime = createTimeLabel(currentPosition)
             elapsedTimeLabelRec.text = elapsedTime
             if (elapsedTime == createTimeLabel(totalTime)) {
                 playRecBtn.setBackgroundResource(R.drawable.play)
@@ -528,11 +515,11 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @SuppressLint("HandlerLeak")
     var handlerRes = object : Handler() {
         override fun handleMessage(msg: Message) {
-            var currentPosition = msg.what
+            val currentPosition = msg.what
 
             positionResBar.progress = currentPosition
 
-            var elapsedTime = createTimeLabel(currentPosition)
+            val elapsedTime = createTimeLabel(currentPosition)
             elapsedTimeLabelRes.text = elapsedTime
             if (elapsedTime == createTimeLabel(totalTimeRes)) {
                 playResBtn.setBackgroundResource(R.drawable.play)
@@ -543,8 +530,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @SuppressLint("HandlerLeak")
     var handlerVoice = object : Handler() {
         override fun handleMessage(msg: Message) {
-            var currentPosition = msg.what
-            var elapsedTime = createTimeLabel(currentPosition)
+            val currentPosition = msg.what
+            val elapsedTime = createTimeLabel(currentPosition)
 
             if (elapsedTime == createTimeLabel(totalTimeVoice)) {
                 playVoiceBtn.setBackgroundResource(R.drawable.play)
@@ -553,9 +540,9 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun createTimeLabel(time: Int): String {
-        var timeLabel = ""
-        var min = time / 1000 / 60
-        var sec = time / 1000 % 60
+        var timeLabel: String
+        val min = time / 1000 / 60
+        val sec = time / 1000 % 60
 
         timeLabel = "$min:"
         if (sec < 10) timeLabel += "0"
@@ -577,7 +564,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPlayableRecording() {
-        var recURL = Uri.parse(controller.recordingPath)
+        val recURL = Uri.parse(controller.recordingPath)
         recPlayer = MediaPlayer.create(this, recURL)
         recPlayer?.isLooping = false
         recPlayer?.setVolume(0.5f, 0.5f)
@@ -597,31 +584,28 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     }
                 }
 
-                override fun onStartTrackingTouch(p0: SeekBar?) {
-                }
-
-                override fun onStopTrackingTouch(p0: SeekBar?) {
-                }
+                override fun onStartTrackingTouch(p0: SeekBar?) {}
+                override fun onStopTrackingTouch(p0: SeekBar?) {}
             }
         )
 
-        Thread(Runnable {
+        Thread {
             while (recPlayer != null) {
                 try {
-                    var msg = Message()
+                    val msg = Message()
                     msg.what = recPlayer?.currentPosition!!
                     handler.sendMessage(msg)
                     Thread.sleep(1000)
                 } catch (e: InterruptedException) {
                 }
             }
-        }).start()
+        }.start()
 
 
         playRecBtn.isEnabled = true
         actionsRec.isEnabled = true
         processBtn.isEnabled = controller.online
-        if (user.autosaveRec){
+        if (user.autosaveRec) {
             downloadAudio(
                 "Recording", controller.recordingPath,
                 "Запись сохранена в загрузки", "запись"
@@ -643,7 +627,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPlayableResult() {
-        var resURL = Uri.parse(controller.resultPath)
+        val resURL = Uri.parse(controller.resultPath)
         resPlayer = MediaPlayer.create(this, resURL)
         resPlayer?.isLooping = false
         resPlayer?.setVolume(0.5f, 0.5f)
@@ -663,16 +647,12 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     }
                 }
 
-                override fun onStartTrackingTouch(p0: SeekBar?) {
-                }
-
-                override fun onStopTrackingTouch(p0: SeekBar?) {
-                }
+                override fun onStartTrackingTouch(p0: SeekBar?) {}
+                override fun onStopTrackingTouch(p0: SeekBar?) {}
             }
         )
 
-        // Thread
-        Thread(Runnable {
+        Thread {
             while (resPlayer != null) {
                 try {
                     var msg = Message()
@@ -682,11 +662,11 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 } catch (e: InterruptedException) {
                 }
             }
-        }).start()
+        }.start()
 
         playResBtn.isEnabled = true
         actionsRes.isEnabled = true
-        if (user.autosaveRes){
+        if (user.autosaveRes) {
             downloadAudio(
                 "Result", controller.resultPath,
                 "Результат сохранен в загрузки", "результат"
@@ -698,18 +678,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @RequiresApi(Build.VERSION_CODES.O)
     fun process(view: View) {
         var voiceId = -1
-        for (one_voice in user.voices){
-            if(one_voice.title == voice)
+        for (one_voice in user.voices) {
+            if (one_voice.title == voice)
                 voiceId = one_voice.ID
         }
         controller.process(voiceId).observe(this) {
             if (it != null) {
                 val url = it.url
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
-                controller.downloadAudioByURL(url, controller.resultPath).observe(this){
+                controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
-                            processed = true
-                            getPlayableResult()
+                        processed = true
+                        getPlayableResult()
                     } else {
                         Toast.makeText(
                             this,
@@ -742,24 +722,24 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     private fun getPlayableVoice() {
         voice = voiceSpinner.selectedItem as String
-        var voicePath = controller.voicesPath + "/" + voice + ".mp3"
-        var resURL = Uri.parse(voicePath)
+        val voicePath = controller.voicesPath + "/" + voice + ".mp3"
+        val resURL = Uri.parse(voicePath)
         voicePlayer = MediaPlayer.create(this, resURL)
         voicePlayer?.isLooping = false
         voicePlayer?.setVolume(0.5f, 0.5f)
         totalTimeVoice = voicePlayer?.duration!!
 
-        Thread(Runnable {
+        Thread {
             while (voicePlayer != null) {
                 try {
-                    var msg = Message()
+                    val msg = Message()
                     msg.what = voicePlayer?.currentPosition!!
                     handlerVoice.sendMessage(msg)
                     Thread.sleep(1000)
                 } catch (e: InterruptedException) {
                 }
             }
-        }).start()
+        }.start()
     }
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -768,6 +748,5 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         getPlayableVoice()
     }
 
-    override fun onNothingSelected(p0: AdapterView<*>?) {
-    }
+    override fun onNothingSelected(p0: AdapterView<*>?) {}
 }

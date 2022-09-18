@@ -1,23 +1,20 @@
-package com.example.voiceversa.Model
+package com.example.voiceversa.model
 
 
 import java.io.Serializable
 import java.util.ArrayList
 
-class User(name_: String = "", var token: String = "token", var audios: ArrayList<Audio> = ArrayList(), var voices: ArrayList<Audio> = ArrayList()) : Serializable {
+class User(name_: String = "", var audios: ArrayList<Audio> = ArrayList(), var voices: ArrayList<Audio> = ArrayList()) : Serializable {
     var name: String = ""
-        get() {
-            return field
-        }
         set(value) {
             if (value.length in 1..9) {
                 field = value
             }
         }
 
-    var autosaveRec : Boolean = false
+    var autoSaveRec : Boolean = false
 
-    var autosaveRes : Boolean = false
+    var autoSaveRes : Boolean = false
 
     override fun toString():String{
         return "name "+ name +"\n\naudios" + audios.joinToString { el->"\n"+el.title }

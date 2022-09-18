@@ -1,4 +1,4 @@
-package com.example.voiceversa.View.Request
+package com.example.voiceversa.view
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -20,10 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.voiceversa.AccountActivity
 import com.example.voiceversa.R
-import com.example.voiceversa.controller
-import com.example.voiceversa.user
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -58,8 +55,8 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
 
         setContentView(R.layout.activity_request)
         Objects.requireNonNull(supportActionBar)!!.hide()
-        val topbar = findViewById<Toolbar>(R.id.request_top_bar)
-        topbar.setOnMenuItemClickListener { item: MenuItem ->
+        val topBar = findViewById<Toolbar>(R.id.request_top_bar)
+        topBar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.account) {
                 val intent = Intent(this, AccountActivity::class.java)
                 startActivity(intent)
@@ -67,12 +64,12 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
             true
         }
 
-        attachRecBtn = findViewById<Button>(R.id.request_attachRecBtn)
-        playRecBtn = findViewById<Button>(R.id.request_playRecBtn)
-        positionRecBar = findViewById<SeekBar>(R.id.request_positionRecBar)
-        elapsedTimeLabelRec = findViewById<TextView>(R.id.request_elapsedTimeLabelRec)
-        totalTimeLabelRec = findViewById<TextView>(R.id.request_totalTimeLabelRec)
-        archiveName = findViewById<TextView>(R.id.request_archive_name)
+        attachRecBtn = findViewById(R.id.request_attachRecBtn)
+        playRecBtn = findViewById(R.id.request_playRecBtn)
+        positionRecBar = findViewById(R.id.request_positionRecBar)
+        elapsedTimeLabelRec = findViewById(R.id.request_elapsedTimeLabelRec)
+        totalTimeLabelRec = findViewById(R.id.request_totalTimeLabelRec)
+        archiveName = findViewById(R.id.request_archive_name)
         startRecBtn = findViewById(R.id.request_startRecBtn)
         pauseRecBtn = findViewById(R.id.request_pauseRecBtn)
         attachArchive = findViewById(R.id.request_attach_archive)
@@ -84,6 +81,11 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
         sendArchive.isEnabled = false
         playRecBtn.isEnabled = false
 
+        checkOnline()
+        setListeners()
+    }
+
+    private fun checkOnline() {
         if (!controller.online) {
             Toast.makeText(
                 this,
@@ -93,11 +95,9 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
                 Toast.LENGTH_SHORT
             ).show()
         }
-
-        setListeners()
     }
 
-    private fun mediarecorderInit() {
+    private fun mediaRecorderInit() {
         mediaRecorder = MediaRecorder()
         mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -142,9 +142,9 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
-    fun getFileFromStorage(data: Intent?, destinationPath: String, key: String) {
+    private fun getFileFromStorage(data: Intent?, destinationPath: String, key: String) {
         try {
-            val uri: Uri = data?.getData()!!
+            val uri: Uri = data?.data!!
             val src = uri.path!!
             var subsrc = ""
 
@@ -181,8 +181,8 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun copy(source: File, destination: File) {
-        var inp: FileChannel = FileInputStream(source).getChannel()
-        var out: FileChannel = FileOutputStream(destination).getChannel()
+        val inp: FileChannel = FileInputStream(source).channel
+        val out: FileChannel = FileOutputStream(destination).channel
 
         try {
             inp.transferTo(0, inp.size(), out);
@@ -190,14 +190,12 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
             println("Error in copying the file\n")
             e.printStackTrace()
         } finally {
-            if (inp != null)
-                inp.close();
-            if (out != null)
-                out.close();
+            inp.close();
+            out.close();
         }
     }
 
-    fun setListeners() {
+    private fun setListeners() {
         startRecBtn.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -208,9 +206,9 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 val permissions = arrayOf(
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
                 )
                 ActivityCompat.requestPermissions(this, permissions, 0)
             } else {
@@ -256,7 +254,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
             sendAudio.isEnabled = controller.online
         } else {
             try {
-                mediarecorderInit()
+                mediaRecorderInit()
                 mediaRecorder?.start()
                 state = true
                 playRecBtn.isEnabled = false
@@ -272,7 +270,6 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     @SuppressLint("RestrictedApi", "SetTextI18n")
-    @TargetApi(Build.VERSION_CODES.N)
     private fun resumeRecording() {
         Toast.makeText(this, "Аудиозапись продолжена", Toast.LENGTH_SHORT).show()
         mediaRecorder?.resume()
@@ -283,11 +280,11 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     @SuppressLint("HandlerLeak")
     var handler = object : Handler() {
         override fun handleMessage(msg: Message) {
-            var currentPosition = msg.what
+            val currentPosition = msg.what
 
             positionRecBar.progress = currentPosition
 
-            var elapsedTime = createTimeLabel(currentPosition)
+            val elapsedTime = createTimeLabel(currentPosition)
             elapsedTimeLabelRec.text = elapsedTime
             if (elapsedTime == createTimeLabel(totalTime)) {
                 playRecBtn.setBackgroundResource(R.drawable.play)
@@ -297,8 +294,8 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
 
     fun createTimeLabel(time: Int): String {
         var timeLabel = ""
-        var min = time / 1000 / 60
-        var sec = time / 1000 % 60
+        val min = time / 1000 / 60
+        val sec = time / 1000 % 60
 
         timeLabel = "$min:"
         if (sec < 10) timeLabel += "0"
@@ -320,7 +317,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPlayableRecording() {
-        var recURL = Uri.parse(controller.requestRecordingPath)
+        val recURL = Uri.parse(controller.requestRecordingPath)
         recPlayer = MediaPlayer.create(this, recURL)
         recPlayer?.isLooping = false
         recPlayer?.setVolume(0.5f, 0.5f)
@@ -340,31 +337,29 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
 
-                override fun onStartTrackingTouch(p0: SeekBar?) {
-                }
+                override fun onStartTrackingTouch(p0: SeekBar?) {}
 
-                override fun onStopTrackingTouch(p0: SeekBar?) {
-                }
+                override fun onStopTrackingTouch(p0: SeekBar?) {}
             }
         )
 
-        Thread(Runnable {
+        Thread {
             while (recPlayer != null) {
                 try {
-                    var msg = Message()
+                    val msg = Message()
                     msg.what = recPlayer?.currentPosition!!
                     handler.sendMessage(msg)
                     Thread.sleep(1000)
                 } catch (e: InterruptedException) {
                 }
             }
-        }).start()
+        }.start()
 
         playRecBtn.isEnabled = true
     }
 
-    fun checkName(): Boolean {
-        if (requestName.text.toString().isNullOrEmpty()) {
+    private fun checkName(): Boolean {
+        if (requestName.text.toString().isEmpty()) {
             Toast.makeText(this, "Введите название заявки", Toast.LENGTH_SHORT).show()
             return false
         } else return true
@@ -386,7 +381,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    fun sendAudio(view: View) {
+    fun sendAudio() {
         if (checkName()) {
             controller.sendRequest("audio" + requestName.text.toString()).observe(this) {
                 if (it != null) {

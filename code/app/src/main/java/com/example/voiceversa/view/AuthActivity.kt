@@ -1,4 +1,4 @@
-package com.example.voiceversa
+package com.example.voiceversa.view
 
 import android.content.Intent
 import android.os.Build
@@ -9,9 +9,9 @@ import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.example.voiceversa.Controller.Controller
-import com.example.voiceversa.Model.User
-import com.example.voiceversa.View.Settings.ProcessActivity
+import com.example.voiceversa.controller.Controller
+import com.example.voiceversa.model.User
+import com.example.voiceversa.view.ProcessActivity
 import java.util.*
 
 lateinit var user: User
@@ -69,11 +69,11 @@ class AuthActivity : AppCompatActivity() {
     private fun setListeners() {
 
         signInButton.setOnClickListener {
-            notGuest("signin")
+            notGuest("signIn")
         }
 
         signUpButton.setOnClickListener {
-            notGuest("signup")
+            notGuest("signUp")
         }
 
         guestButton.setOnClickListener {
@@ -105,7 +105,7 @@ class AuthActivity : AppCompatActivity() {
                 passwordText.setText(passwordSaved, TextView.BufferType.EDITABLE)
                 loginText.setText(nameSaved, TextView.BufferType.EDITABLE)
                 controller.token.postValue(tokenSaved)
-                notGuest("signin")
+                notGuest("signIn")
             }
         } catch (e: Exception) {
         }
@@ -121,7 +121,7 @@ class AuthActivity : AppCompatActivity() {
             if (!it.isNullOrEmpty()) {
                proceedAuthorized(it)
             } else {
-                val message = if (key == "signin") {
+                val message = if (key == "signIn") {
                     "Вы ввели неверные данные для авторизации. Попробуйте снова."
                 } else {
                     "Вас не получилось зарегистрировать. Попробуйте снова."
@@ -136,7 +136,7 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun proceedAuthorized(token: String){
-        user = User(loginText.text.toString(), token = token)
+        user = User(loginText.text.toString())
 
         val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
         with(sharedPref.edit()) {

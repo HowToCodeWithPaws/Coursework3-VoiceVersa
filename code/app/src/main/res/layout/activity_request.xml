@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".View.Request.RequestActivity"
+    tools:context=".view.RequestActivity"
     android:theme="@style/Theme.FancyWork">
 
     <com.google.android.material.appbar.AppBarLayout

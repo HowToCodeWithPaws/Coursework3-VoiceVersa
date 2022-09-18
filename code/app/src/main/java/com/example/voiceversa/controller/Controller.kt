@@ -1,4 +1,4 @@
-package com.example.voiceversa.Controller
+package com.example.voiceversa.controller
 
 import android.content.ContentResolver
 import android.content.Context
@@ -9,7 +9,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.voiceversa.BuildConfig
-import com.example.voiceversa.Model.*
+import com.example.voiceversa.model.*
+import com.example.voiceversa.serverClasses.*
 import com.example.voiceversa.controller
 import com.example.voiceversa.user
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -26,13 +27,12 @@ import java.io.*
 
 
 fun readAudioNames(path: String): ArrayList<String> {
-    var audioNames: ArrayList<String> = ArrayList()
-    File(path).walkTopDown().forEach {
-        if (it.extension == "mp3") {
-            var idxDot = it.absolutePath.indexOfLast { it == '.' }
-            var ext = it.absolutePath.substring(idxDot + 1, it.absolutePath.length)
-            var withoutExt = it.absolutePath.substring(0, idxDot)
-            var name =
+    val audioNames: ArrayList<String> = ArrayList()
+    File(path).walkTopDown().forEach { file ->
+        if (file.extension == "mp3") {
+            val idxDot = file.absolutePath.indexOfLast { it == '.' }
+            val withoutExt = file.absolutePath.substring(0, idxDot)
+            val name =
                 withoutExt.substring(withoutExt.indexOfLast { it == '/' } + 1, withoutExt.length)
 
             audioNames.add(name)
@@ -53,27 +53,18 @@ fun makeDirectories(path: String, name: String): String {
     }
 
     return mediaStorageDir.absolutePath
-
 }
 
 class Controller(homePath_: String = "empty") : ViewModel() {
 
     var context: Context? = null
-
     var homePath: String = "empty"
-
     var requestRecordingPath: String = "empty"
-
     var requestArchivePath: String = "empty"
-
     var recordingPath: String = "empty"
-
     var resultPath: String = "empty"
-
     var voicesPath: String = "empty"
-
     var savedPath: String = "empty"
-
     var online: Boolean = false
 
     companion object {
@@ -143,8 +134,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return downloadBody
     }
 
-    fun serverDownloadAudioByURL(apiInterface: Call<ResponseBody>,
-                                 downloadBody: MutableLiveData<Boolean>, path: String){
+    private fun serverDownloadAudioByURL(apiInterface: Call<ResponseBody>,
+                                         downloadBody: MutableLiveData<Boolean>, path: String){
 
         apiInterface.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -161,7 +152,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     private fun writeResponseBodyToDisk(body: ResponseBody, path:String): Boolean {
         return try {
-            val file: File = File(path)
+            val file = File(path)
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
             try {
@@ -184,12 +175,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             } catch (e: IOException) {
                 false
             } finally {
-                if (inputStream != null) {
-                    inputStream.close()
-                }
-                if (outputStream != null) {
-                    outputStream.close()
-                }
+                inputStream?.close()
+                outputStream?.close()
             }
         } catch (e: IOException) {
             false
@@ -204,8 +191,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return library
     }
 
-    fun serverLoadLibrary(apiInterface: Call<AudioListResponse<AudioFromServer>>,
-                         library: MutableLiveData<AudioListResponse<AudioFromServer>>){
+    private fun serverLoadLibrary(apiInterface: Call<AudioListResponse<AudioFromServer>>,
+                                  library: MutableLiveData<AudioListResponse<AudioFromServer>>){
         apiInterface.enqueue(object : Callback<AudioListResponse<AudioFromServer>> {
             override fun onResponse(call: Call<AudioListResponse<AudioFromServer>>, response: Response<AudioListResponse<AudioFromServer>>) {
                 library.postValue(response.body())
@@ -228,8 +215,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return voices
     }
 
-    fun serverLoadVoices(apiInterface: Call<AudioListResponse<VoiceFromServer>>,
-                         voices: MutableLiveData<AudioListResponse<VoiceFromServer>>){
+    private fun serverLoadVoices(apiInterface: Call<AudioListResponse<VoiceFromServer>>,
+                                 voices: MutableLiveData<AudioListResponse<VoiceFromServer>>){
         apiInterface.enqueue(object : Callback<AudioListResponse<VoiceFromServer>> {
             override fun onResponse(call: Call<AudioListResponse<VoiceFromServer>>,
                                     response: Response<AudioListResponse<VoiceFromServer>>) {
@@ -265,16 +252,14 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun signInOrUp(username: String, password: String, key: String): LiveData<String> {
         Log.d("TOKEN", "Start")
-        if (key == "signin") {
+        if (key == "signIn") {
             val apiInterface = service!!.authorize(LoginRequest(username, password))
             serverSignIn(apiInterface, token)
-        } else if (key == "signup") {
+        } else if (key == "signUp") {
             val request = LoginRequest(username, password)
             val apiInterface = service!!.signUp(request)
             serverSignUp(apiInterface, token, request)
         }
-
-        user.token = token.value!!
         return token
     }
 
@@ -315,7 +300,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         val body = MultipartBody.Part.createFormData("recording", file.name, requestFile)
         val voice = "$voiceID".toRequestBody("text/plain".toMediaTypeOrNull())
         Log.d("PROCESS", "Token - ${token.value}")
-        val apiInterface = service!!.process(voice, body, token.value!!)//replace 230 with voice code
+        val apiInterface = service!!.process(voice, body, token.value!!)
 
         serverProcess(apiInterface, result)
 
@@ -338,11 +323,9 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     fun addToLibrary(audioPath: String): LiveData<Any> {
-
-        var file: File = File(audioPath)
+        val file = File(audioPath)
 
         val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull())
-
         val body = MultipartBody.Part.createFormData("library", file.name, requestFile)
         val apiInterface = service!!.save(body, token.value!!)
         serverAddToLibrary(apiInterface, saveResult)
@@ -364,7 +347,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun sendRequest(requestName: String): LiveData<Any> {
 
-        var file: File =
+        val file: File =
             if (requestName.startsWith("archive")) {
                 File(controller.requestArchivePath)
 
@@ -374,13 +357,11 @@ class Controller(homePath_: String = "empty") : ViewModel() {
                 File("")
             }
 
-        println("\n\n\n" + file.absolutePath + "\n\n\n")
-
         val requestFile = file
             .asRequestBody("multipart/form-data".toMediaTypeOrNull())
 
         val body =
-            MultipartBody.Part.createFormData("request" + requestName, file.name, requestFile)
+            MultipartBody.Part.createFormData("request$requestName", file.name, requestFile)
         val apiInterface = service!!.request(body, token.value!!)
         serverRequest(apiInterface, requestResult)
 
@@ -426,11 +407,9 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun deleteLibrary(): Boolean {
         try {
             var result = true
-            println("\n\n" + user.audios.size)
-            var copy = user.audios.toArray()
+            val copy = user.audios.toArray()
             for (i in 0 until user.audios.size) {
                 result = result && deleteAudio(copy[i] as Audio)
-                println("\n\n" + user.audios.size + " " + i)
             }
             user.audios = ArrayList()
 
