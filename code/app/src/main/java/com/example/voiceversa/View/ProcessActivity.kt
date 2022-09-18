@@ -97,6 +97,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         getPermissions()
         setListeners()
+        getVoices()
         setVoices()
         setEnabled()
         setMenuListeners()
@@ -124,7 +125,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         controller.loadVoices().observe(this){
             if (!it.isNullOrEmpty()) {
                 //TODO сохранить голоса как файлы в нужную папку - voicesPath
-                setVoices()
+      //          setVoices()
             } else {
 
                 Toast.makeText(
