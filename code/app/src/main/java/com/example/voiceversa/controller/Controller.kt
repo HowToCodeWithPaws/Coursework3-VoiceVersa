@@ -161,18 +161,27 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     private fun writeResponseBodyToDisk(body: ResponseBody, path:String): Boolean {
         return try {
+            println("\n\n\n\nENTER DOWNLOAD\n\n\n\n")
             val file = File(path)
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
+
+            println("\n\n\n\nSTREAMS MADE\n\n\n\n")
             try {
                 val fileReader = ByteArray(4096)
                 val fileSize = body.contentLength()
                 var fileSizeDownloaded: Long = 0
+
+                println("\n\n\n\nCHECKPOINT 1\n\n\n\n")
                 inputStream = body.byteStream()
                 outputStream = FileOutputStream(file)
+
                 while (true) {
+                    println("\n\n\n\nENTER WHILE\n\n\n\n")
                     val read: Int = inputStream.read(fileReader)
                     if (read == -1) {
+
+                        println("\n\n\n\nEXIT DOWNLOAD\n\n\n\n")
                         break
                     }
                     outputStream.write(fileReader, 0, read)
