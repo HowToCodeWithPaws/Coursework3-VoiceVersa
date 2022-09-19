@@ -126,7 +126,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         controller.loadVoices().observe(this) { list ->
             if (list.results.isNotEmpty()) {
                 downloadAllInArray(list)
-
             } else {
 
                 Toast.makeText(
@@ -694,26 +693,24 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         controller.process(voiceId).observe(this) { resultFromServer ->
             if (resultFromServer != null) {
                 val url = resultFromServer.url
+                println("\n\n\n\n\n" + url)
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
                         val file = File(controller.resultPath)
+                        var exists : Boolean = false
+                        val handler = Handler()
+                        handler.postDelayed(object : Runnable {
+                            override fun run() {
+                                exists = file.exists()
+                                handler.postDelayed(this, 1000)//1 sec delay
+                            }
+                        }, 0)
 
-
-                        while(!file.exists()){
-//                            val timer = object : CountDownTimer(10000, 1000) {
-//                                override fun onTick(millisUntilFinished: Long) {}
-//
-//                                override fun onFinish() {
-//                                    timerStop()
-//                                }
-//                            }
-
+                        if(exists){
+                            processed = true
+                            getPlayableResult()
                         }
-
-                        processed = true
-                        
-                        getPlayableResult()
                     } else {
                         Toast.makeText(
                             this,
