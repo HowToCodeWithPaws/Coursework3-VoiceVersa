@@ -70,7 +70,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     var online: Boolean = false
 
     companion object {
-        private const val BASE_URL = "http://192.168.1.150:8080" //TODO change to ours
+        private const val BASE_URL = "http://192.168.43.217:8080" //TODO change to ours
     }
 
     private var service: AudioApiService? = null
@@ -147,7 +147,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
         apiInterface.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                downloadBody.postValue( writeResponseBodyToDisk(response.body()!!, path))
+                if (response.body() != null)
+                    downloadBody.postValue( writeResponseBodyToDisk(response.body()!!, path))
                 Log.d("LIB", "SUCCESS: ${response.body()}")
             }
 
@@ -274,6 +275,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     private fun serverSignIn(apiInterface: Call<Token>, token: MutableLiveData<String>) {
         apiInterface.enqueue(object : Callback<Token> {
             override fun onResponse(call: Call<Token>, response: Response<Token>) {
+                Log.d("TOKEN", "SUCCESS: ${response.body()}")
                 token.postValue("Token ${response.body()?.token}")
             }
 
