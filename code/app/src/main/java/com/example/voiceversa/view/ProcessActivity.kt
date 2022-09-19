@@ -8,6 +8,7 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.*
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -634,7 +635,9 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPlayableResult() {
         val resURL = Uri.parse(controller.resultPath)
+        Log.d("PROCESS_RESULT", "URI: ${resURL.path}")
         resPlayer = MediaPlayer.create(this, resURL)
+        Log.d("PROCESS_RESULT", "PLAYER: $resPlayer")
         resPlayer?.isLooping = false
         resPlayer?.setVolume(0.5f, 0.5f)
         totalTimeRes = resPlayer?.duration!!
