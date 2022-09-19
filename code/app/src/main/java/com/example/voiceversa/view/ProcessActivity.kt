@@ -695,6 +695,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
                         processed = true
+                        
                         getPlayableResult()
                     } else {
                         Toast.makeText(
