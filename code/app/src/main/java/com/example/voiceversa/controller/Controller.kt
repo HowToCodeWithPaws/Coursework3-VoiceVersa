@@ -11,9 +11,8 @@ import androidx.lifecycle.ViewModel
 import com.example.voiceversa.BuildConfig
 import com.example.voiceversa.model.*
 import com.example.voiceversa.serverClasses.*
-import com.example.voiceversa.controller
-import com.example.voiceversa.user
 import com.example.voiceversa.view.controller
+import com.example.voiceversa.view.user
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -365,8 +364,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
                 File("")
             }
 
-        val requestFile = file
-            .asRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
 
         val body =
             MultipartBody.Part.createFormData("request$requestName", file.name, requestFile)

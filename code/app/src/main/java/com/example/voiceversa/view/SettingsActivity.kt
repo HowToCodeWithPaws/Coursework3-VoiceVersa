@@ -17,11 +17,11 @@ import java.util.*
 
 class SettingsActivity : AppCompatActivity() {
 
-    lateinit var logInOutButton: Button
-    lateinit var accountStatus: TextView
-    lateinit var autoSaveRec: SwitchCompat
-    lateinit var autoSaveRes: SwitchCompat
-    lateinit var deleteLibrary: Button
+    private lateinit var logInOutButton: Button
+    private lateinit var accountStatus: TextView
+    private lateinit var autoSaveRec: SwitchCompat
+    private lateinit var autoSaveRes: SwitchCompat
+    private lateinit var deleteLibrary: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,11 +45,8 @@ class SettingsActivity : AppCompatActivity() {
         deleteLibrary = findViewById(R.id.delete_library)
 
         checkOnline()
-
         refresh()
-
         setLogInOut()
-
         setListeners()
     }
 

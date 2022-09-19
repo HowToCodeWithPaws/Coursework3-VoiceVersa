@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.voiceversa.BuildConfig
 import com.example.voiceversa.model.Audio
 import com.example.voiceversa.R
-import com.example.voiceversa.controller
+import com.example.voiceversa.view.controller
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -45,13 +45,13 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
     }
 
     private fun getItem(position: Int): Audio {
-        return audios[position];
+        return audios[position]
     }
 
     class ListViewHolder(
         itemView: View,
-        var parentAdapter: AudiosListAdapter,
-        var audios: ArrayList<Audio>
+        private var parentAdapter: AudiosListAdapter,
+        private var audios: ArrayList<Audio>
     ) :
         RecyclerView.ViewHolder(itemView) {
 
@@ -63,11 +63,11 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         val playBtn: Button = itemView.findViewById(R.id.playBtn)
         lateinit var elapsedTimeLabel: TextView
         private var totalTime: Int = 0
-        lateinit var totalTimeLabel: TextView
+        private lateinit var totalTimeLabel: TextView
         private val menuButton = itemView.findViewById<ImageView>(R.id.actions)
 
         fun createTimeLabel(time: Int): String {
-            var timeLabel = ""
+            var timeLabel: String
             val min = time / 1000 / 60
             val sec = time / 1000 % 60
 
@@ -100,6 +100,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             setMenuListeners()
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun setMenuListeners() {
             menuButton.setOnClickListener {
                 val menu = PopupMenu(controller.context, it)
@@ -127,6 +128,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun deleteAudio() {
             if (controller.deleteAudio(audio)) {
                 val index = audios.indexOf(audio)
@@ -138,7 +140,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
                 ).show()
 
                 parentAdapter.notifyItemRemoved(index)
-                parentAdapter.notifyItemRangeChanged(position, audios.size);
+                parentAdapter.notifyItemRangeChanged(position, audios.size)
 
                 controller.deleteAudio(audio.ID)
             } else {
@@ -150,6 +152,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun downloadAudio() {
             try {
                 controller.downloadAudio(audio.url, audio.title + ".mp3")
@@ -169,6 +172,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun shareAudio() {
             try {
                 val file = File(audio.url)
@@ -182,7 +186,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     intent.type = "audio/mp3"
                     intent.putExtra(Intent.EXTRA_STREAM, uri)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     controller.context!!.startActivity(intent)
                 }
             } catch (e: Exception) {
@@ -207,6 +211,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun getPlayableAudio() {
             val resURL = Uri.parse(audio.url)
             audioPlayer = MediaPlayer.create(itemView.context, resURL)

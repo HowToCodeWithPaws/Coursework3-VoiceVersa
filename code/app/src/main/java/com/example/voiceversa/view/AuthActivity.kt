@@ -9,9 +9,9 @@ import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.example.voiceversa.R
 import com.example.voiceversa.controller.Controller
 import com.example.voiceversa.model.User
-import com.example.voiceversa.view.ProcessActivity
 import java.util.*
 
 lateinit var user: User
@@ -45,7 +45,7 @@ class AuthActivity : AppCompatActivity() {
         guestButton = findViewById(R.id.guest)
         eyeButton = findViewById(R.id.password_eye)
 
-        passwordText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        passwordText.transformationMethod = PasswordTransformationMethod.getInstance()
 
         checkOnline()
         setListeners()
@@ -77,7 +77,7 @@ class AuthActivity : AppCompatActivity() {
         }
 
         guestButton.setOnClickListener {
-            user = User("", "")
+            user = User("")
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }

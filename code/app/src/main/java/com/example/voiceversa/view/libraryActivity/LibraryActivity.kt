@@ -16,15 +16,15 @@ import com.example.voiceversa.model.Audio
 import com.example.voiceversa.serverClasses.AudioFromServer
 import com.example.voiceversa.serverClasses.AudioListResponse
 import com.example.voiceversa.R
-import com.example.voiceversa.controller
-import com.example.voiceversa.user
+import com.example.voiceversa.view.controller
+import com.example.voiceversa.view.user
 import java.util.*
 
 class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private lateinit var nestedListAdapter: NestedListAdapter
-    lateinit var rvList: RecyclerView
-    lateinit var sortSpinner: Spinner
+    private lateinit var rvList: RecyclerView
+    private lateinit var sortSpinner: Spinner
     private var listList = ArrayList<ListForRV>()
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -48,6 +48,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
         refresh("По названию")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getAudios() {
         controller.loadLibrary().observe(this) {
             if (it.results.isNotEmpty()) {
@@ -63,6 +64,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun downloadAllFromArray(list: AudioListResponse<AudioFromServer>) {
         val array = ArrayList<Audio>()
         for (audio_from_server in list.results) {

@@ -2,7 +2,6 @@ package com.example.voiceversa.view
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -30,18 +29,18 @@ import java.util.*
 
 class RequestActivity : AppCompatActivity(), View.OnClickListener {
 
-    lateinit var sendAudio: Button
-    lateinit var sendArchive: TextView
-    lateinit var startRecBtn: Button
-    lateinit var attachRecBtn: Button
-    lateinit var pauseRecBtn: Button
+    private lateinit var sendAudio: Button
+    private lateinit var sendArchive: TextView
+    private lateinit var startRecBtn: Button
+    private lateinit var attachRecBtn: Button
+    private lateinit var pauseRecBtn: Button
     lateinit var playRecBtn: Button
     lateinit var positionRecBar: SeekBar
     lateinit var elapsedTimeLabelRec: TextView
-    lateinit var totalTimeLabelRec: TextView
-    lateinit var archiveName: TextView
-    lateinit var attachArchive: Button
-    lateinit var requestName: EditText
+    private lateinit var totalTimeLabelRec: TextView
+    private lateinit var archiveName: TextView
+    private lateinit var attachArchive: Button
+    private lateinit var requestName: EditText
 
     private var mediaRecorder: MediaRecorder? = null
     private var recPlayer: MediaPlayer? = null
@@ -50,6 +49,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     private var state: Boolean = false
     private var recordingStopped: Boolean = false
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -124,6 +124,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -142,21 +143,22 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getFileFromStorage(data: Intent?, destinationPath: String, key: String) {
         try {
             val uri: Uri = data?.data!!
             val src = uri.path!!
-            var subsrc = ""
+            var subSrc = ""
 
             if (src.contains("storage")) {
-                subsrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
+                subSrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
             } else if (src.contains("primary")) {
-                subsrc =
+                subSrc =
                     "/storage/emulated/0/" + src.subSequence(src.indexOf("primary") + 8, src.length)
                         .toString()
             }
 
-            val source: File = File(subsrc).absoluteFile
+            val source: File = File(subSrc).absoluteFile
             val destination = File(destinationPath)
 
             copy(source, destination)
@@ -185,16 +187,17 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
         val out: FileChannel = FileOutputStream(destination).channel
 
         try {
-            inp.transferTo(0, inp.size(), out);
+            inp.transferTo(0, inp.size(), out)
         } catch (e: Exception) {
             println("Error in copying the file\n")
             e.printStackTrace()
         } finally {
-            inp.close();
-            out.close();
+            inp.close()
+            out.close()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setListeners() {
         startRecBtn.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
@@ -226,7 +229,6 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
 
 
     @SuppressLint("RestrictedApi", "SetTextI18n")
-    @TargetApi(Build.VERSION_CODES.N)
     private fun pauseRecording() {
         if (state) {
             if (!recordingStopped) {
@@ -240,6 +242,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun startRecording() {
         if (state) {
             mediaRecorder?.stop()
@@ -293,7 +296,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun createTimeLabel(time: Int): String {
-        var timeLabel = ""
+        var timeLabel: String
         val min = time / 1000 / 60
         val sec = time / 1000 % 60
 
@@ -359,10 +362,10 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun checkName(): Boolean {
-        if (requestName.text.toString().isEmpty()) {
+        return if (requestName.text.toString().isEmpty()) {
             Toast.makeText(this, "Введите название заявки", Toast.LENGTH_SHORT).show()
-            return false
-        } else return true
+            false
+        } else true
     }
 
     fun sendArchive(view: View) {

@@ -32,13 +32,13 @@ import java.util.*
 class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemSelectedListener {
 
-    lateinit var actionsRec: ImageView
-    lateinit var actionsRes: ImageView
-    lateinit var startRecBtn: Button
-    lateinit var attachRecBtn: Button
-    lateinit var pauseRecBtn: Button
-    lateinit var voiceSpinner: Spinner
-    lateinit var processBtn: Button
+    private lateinit var actionsRec: ImageView
+    private lateinit var actionsRes: ImageView
+    private lateinit var startRecBtn: Button
+    private lateinit var attachRecBtn: Button
+    private lateinit var pauseRecBtn: Button
+    private lateinit var voiceSpinner: Spinner
+    private lateinit var processBtn: Button
     lateinit var playRecBtn: Button
     lateinit var playResBtn: Button
     lateinit var playVoiceBtn: Button
@@ -46,8 +46,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     lateinit var positionResBar: SeekBar
     lateinit var elapsedTimeLabelRec: TextView
     lateinit var elapsedTimeLabelRes: TextView
-    lateinit var totalTimeLabelRec: TextView
-    lateinit var totalTimeLabelRes: TextView
+    private lateinit var totalTimeLabelRec: TextView
+    private lateinit var totalTimeLabelRes: TextView
     private var recPlayer: MediaPlayer? = null
     private var resPlayer: MediaPlayer? = null
     private var voicePlayer: MediaPlayer? = null
@@ -120,6 +120,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getVoices() {
         controller.loadVoices().observe(this) { list ->
             if (list.results.isNotEmpty()) {
@@ -136,6 +137,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun downloadAllInArray(list: AudioListResponse<VoiceFromServer>) {
         val array = ArrayList<Audio>()
         for (voice_from_server in list.results) {
@@ -209,6 +211,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setListeners() {
         startRecBtn.setOnClickListener {
             startRecording()
@@ -359,7 +362,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 intent.type = "audio/mp3"
                 intent.putExtra(Intent.EXTRA_STREAM, uri)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
             }
         } catch (e: Exception) {
@@ -381,6 +384,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -392,25 +396,26 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getAudioFromStorage(data: Intent?, destinationPath: String) {
         try {
             val uri: Uri = data?.data!!
             val src = uri.path!!
-            var subsrc = ""
+            var subSrc = ""
 
             if (src.contains("storage")) {
-                subsrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
+                subSrc = src.subSequence(src.indexOf("storage") - 1, src.length).toString()
             } else if (src.contains("primary")) {
-                subsrc =
+                subSrc =
                     "/storage/emulated/0/" + src.subSequence(src.indexOf("primary") + 8, src.length)
                         .toString()
             }
 
-            val source: File = File(subsrc).absoluteFile
+            val source: File = File(subSrc).absoluteFile
             val destination = File(destinationPath)
 
             copy(source, destination)
-            Toast.makeText(this, "Вы выбрали аудио $subsrc", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Вы выбрали аудио $subSrc", Toast.LENGTH_SHORT).show()
             getPlayableRecording()
         } catch (e: Exception) {
             println("Error in getting file ")
@@ -447,6 +452,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         mediaRecorder?.prepare()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun startRecording() {
         if (state) {
             mediaRecorder?.stop()
@@ -605,7 +611,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         playRecBtn.isEnabled = true
         actionsRec.isEnabled = true
         processBtn.isEnabled = controller.online
-        if (user.autosaveRec) {
+        if (user.autoSaveRec) {
             downloadAudio(
                 "Recording", controller.recordingPath,
                 "Запись сохранена в загрузки", "запись"
@@ -655,7 +661,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         Thread {
             while (resPlayer != null) {
                 try {
-                    var msg = Message()
+                    val msg = Message()
                     msg.what = resPlayer?.currentPosition!!
                     handlerRes.sendMessage(msg)
                     Thread.sleep(1000)
@@ -666,7 +672,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         playResBtn.isEnabled = true
         actionsRes.isEnabled = true
-        if (user.autosaveRes) {
+        if (user.autoSaveRes) {
             downloadAudio(
                 "Result", controller.resultPath,
                 "Результат сохранен в загрузки", "результат"
@@ -682,9 +688,9 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             if (one_voice.title == voice)
                 voiceId = one_voice.ID
         }
-        controller.process(voiceId).observe(this) {
-            if (it != null) {
-                val url = it.url
+        controller.process(voiceId).observe(this) { resultFromServer ->
+            if (resultFromServer != null) {
+                val url = resultFromServer.url
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {

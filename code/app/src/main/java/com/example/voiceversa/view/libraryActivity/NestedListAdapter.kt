@@ -1,13 +1,15 @@
 package com.example.voiceversa.view.libraryActivity
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.example.voiceversa.model.Audio
 import com.example.voiceversa.databinding.ListItemBinding
-import com.example.voiceversa.user
+import com.example.voiceversa.view.user
 import java.util.ArrayList
 
 class NestedListAdapter(
@@ -24,6 +26,7 @@ class NestedListAdapter(
         return ViewHolder(binding)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         thisAdapter = this
         with(holder) {
@@ -52,6 +55,7 @@ class NestedListAdapter(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setUpArray(list: ListForRV, position: Int) {
 
         val array: ArrayList<Audio> = if (listList[position].name == "Сохраненные записи") {
