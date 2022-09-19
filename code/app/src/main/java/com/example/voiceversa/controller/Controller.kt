@@ -248,7 +248,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         })
     }
 
-    fun deleteAudio(id: Int): LiveData<Any> {
+    private fun deleteAudio(id: Int): LiveData<Any> {
         val apiInterface = service!!.delete(id, token.value!!)
 
         serverDeleteAudio(apiInterface, deleteResult)
@@ -449,6 +449,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             val contentResolver: ContentResolver =
                 this.context!!.contentResolver
             contentResolver.delete(uri, null, null)
+
+            controller.deleteAudio(audio.ID)
             return true
         } catch (e: Exception) {
             println("Error while deleting audio")

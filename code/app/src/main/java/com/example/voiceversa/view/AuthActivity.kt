@@ -78,6 +78,17 @@ class AuthActivity : AppCompatActivity() {
 
         guestButton.setOnClickListener {
             user = User("")
+            controller.online = false
+
+            try {
+                val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+                val autoSaveRes = sharedPref.getString("autoSaveRes", "").toString()
+                val autoSaveRec = sharedPref.getString("autoSaveRec", "").toString()
+                user.autoSaveRec = autoSaveRec == "true"
+                user.autoSaveRes = autoSaveRes == "true"
+            } catch (e: Exception) {
+            }
+
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }
@@ -119,8 +130,9 @@ class AuthActivity : AppCompatActivity() {
         ).observe(this) {
             Log.d("AUTH", " $it")
             if (!it.isNullOrEmpty()) {
-               proceedAuthorized(it)
+                proceedAuthorized(it)
             } else {
+                controller.online = false
                 val message = if (key == "signIn") {
                     "Вы ввели неверные данные для авторизации. Попробуйте снова."
                 } else {
@@ -135,7 +147,7 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
-    private fun proceedAuthorized(token: String){
+    private fun proceedAuthorized(token: String) {
         user = User(loginText.text.toString())
 
         val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
@@ -148,6 +160,15 @@ class AuthActivity : AppCompatActivity() {
             apply()
         }
 
+        try {
+            val autoSaveRes = sharedPref.getString("autoSaveRes", "").toString()
+            val autoSaveRec = sharedPref.getString("autoSaveRec", "").toString()
+            user.autoSaveRec = autoSaveRec == "true"
+            user.autoSaveRes = autoSaveRes == "true"
+        } catch (e: Exception) {
+        }
+
+        controller.online = true
         val intent = Intent(this, ProcessActivity::class.java)
         startActivity(intent)
     }

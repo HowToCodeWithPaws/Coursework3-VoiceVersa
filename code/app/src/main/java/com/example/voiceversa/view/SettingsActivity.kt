@@ -114,11 +114,22 @@ class SettingsActivity : AppCompatActivity() {
 
         autoSaveRes.setOnCheckedChangeListener { _, isChecked ->
             user.autoSaveRes = isChecked
+            val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putString("autoSaveRes", user.autoSaveRes.toString())
+                apply()
+            }
         }
 
         autoSaveRec.setOnCheckedChangeListener { _, isChecked ->
             user.autoSaveRec = isChecked
+            val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putString("autoSaveRec", user.autoSaveRec.toString())
+                apply()
+            }
         }
+
         setLibraryDelete()
     }
 
