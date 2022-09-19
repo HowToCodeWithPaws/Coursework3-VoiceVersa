@@ -697,6 +697,20 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
+                        val file = File(controller.resultPath)
+
+
+                        while(!file.exists()){
+//                            val timer = object : CountDownTimer(10000, 1000) {
+//                                override fun onTick(millisUntilFinished: Long) {}
+//
+//                                override fun onFinish() {
+//                                    timerStop()
+//                                }
+//                            }
+
+                        }
+
                         processed = true
                         
                         getPlayableResult()
