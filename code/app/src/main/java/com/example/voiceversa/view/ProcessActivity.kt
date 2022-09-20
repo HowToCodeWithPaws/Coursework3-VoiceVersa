@@ -109,6 +109,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         actionsRec.isEnabled = false
         actionsRes.isEnabled = false
         processBtn.isEnabled = false
+        playVoiceBtn.isEnabled = false
 
         if (!controller.online) {
             Toast.makeText(
@@ -124,7 +125,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getVoices() {
         controller.loadVoices().observe(this) { list ->
-            if (list.results.isNotEmpty()) {
+            if (list != null && list.results.isNotEmpty()) {
                 downloadAllInArray(list)
             } else {
 
@@ -323,11 +324,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 File(controller.savedPath + "/" + source + currentDate + ".mp3"),
                 overwrite = false
             )
-            Toast.makeText(
-                this,
-                message,
-                Toast.LENGTH_SHORT
-            ).show()
 
             controller.addToLibrary(controller.homePath + "/" + source + ".mp3").observe(this) {
                 if (it == null) {
@@ -338,6 +334,12 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     ).show()
                 }
             }
+
+            Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_SHORT
+            ).show()
         } catch (e: Exception) {
             println("Exception while adding $source")
             e.printStackTrace()

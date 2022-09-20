@@ -35,6 +35,7 @@ class AuthActivity : AppCompatActivity() {
         val home = this.externalMediaDirs!![0]!!.absolutePath
 
         controller = Controller(home)
+        println("\n\n\n\n controller "+ controller+"\n\n\n\n\n")
 
         setContentView(R.layout.activity_auth)
         Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"

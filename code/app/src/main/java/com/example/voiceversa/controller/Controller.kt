@@ -91,19 +91,19 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         MutableLiveData<AudioListResponse<AudioFromServer>>()
     }
 
-    private val requestResult : MutableLiveData<Any> by lazy {
+    private val requestResult: MutableLiveData<Any> by lazy {
         MutableLiveData<Any>()
     }
 
-    private val deleteResult : MutableLiveData<Any> by lazy {
+    private val deleteResult: MutableLiveData<Any> by lazy {
         MutableLiveData<Any>()
     }
 
-    private val saveResult : MutableLiveData<Any> by lazy {
+    private val saveResult: MutableLiveData<Any> by lazy {
         MutableLiveData<Any>()
     }
 
-    private val downloadBody : MutableLiveData<Boolean> by lazy {
+    private val downloadBody: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
 
@@ -128,13 +128,14 @@ class Controller(homePath_: String = "empty") : ViewModel() {
                 .client(httpClient.build())
                 .build()
             service = retrofit.create(AudioApiService::class.java)
-            online = true
+            loadLibrary()
+        //    online = true
         } catch (e: Exception) {
             println("\n\nEXCEPTION WHILE CONNECTING TO SERVER\n\n" + e.printStackTrace())
         }
     }
 
-    fun downloadAudioByURL(url: String, path: String):LiveData<Boolean>{
+    fun downloadAudioByURL(url: String, path: String): LiveData<Boolean> {
         val apiInterface = service!!.downloadFileWithDynamicUrlSync(url, token.value!!)
 
         serverDownloadAudioByURL(apiInterface, downloadBody, path)
@@ -142,24 +143,26 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return downloadBody
     }
 
-    private fun serverDownloadAudioByURL(apiInterface: Call<ResponseBody>,
-                                         downloadBody: MutableLiveData<Boolean>, path: String){
+    private fun serverDownloadAudioByURL(
+        apiInterface: Call<ResponseBody>,
+        downloadBody: MutableLiveData<Boolean>, path: String
+    ) {
 
         apiInterface.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.body() != null)
-                    downloadBody.postValue( writeResponseBodyToDisk(response.body()!!, path))
+                    downloadBody.postValue(writeResponseBodyToDisk(response.body()!!, path))
                 Log.d("LIB", "SUCCESS: ${response.body()}")
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-               downloadBody.postValue(false)
+                downloadBody.postValue(false)
                 Log.d("LIB", "ERROR: ${t.message}")
             }
         })
     }
 
-    private fun writeResponseBodyToDisk(body: ResponseBody, path:String): Boolean {
+    private fun writeResponseBodyToDisk(body: ResponseBody, path: String): Boolean {
         return try {
             println("\n\n\n\nENTER DOWNLOAD\n\n\n\n")
             val file = File(path)
@@ -201,18 +204,26 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         }
     }
 
-    fun loadLibrary():LiveData<AudioListResponse<AudioFromServer>>{
-        val apiInterface = service!!.loadLibrary(token.value!!)
-
-        serverLoadLibrary(apiInterface, library)
-
-        return library
+    fun loadLibrary(): LiveData<AudioListResponse<AudioFromServer>> {
+        return try {
+            val apiInterface = service!!.loadLibrary(token.value!!)
+            serverLoadLibrary(apiInterface, library)
+            library
+        } catch (e: NullPointerException) {
+            controller.online = false
+            library
+        }
     }
 
-    private fun serverLoadLibrary(apiInterface: Call<AudioListResponse<AudioFromServer>>,
-                                  library: MutableLiveData<AudioListResponse<AudioFromServer>>){
+    private fun serverLoadLibrary(
+        apiInterface: Call<AudioListResponse<AudioFromServer>>,
+        library: MutableLiveData<AudioListResponse<AudioFromServer>>
+    ) {
         apiInterface.enqueue(object : Callback<AudioListResponse<AudioFromServer>> {
-            override fun onResponse(call: Call<AudioListResponse<AudioFromServer>>, response: Response<AudioListResponse<AudioFromServer>>) {
+            override fun onResponse(
+                call: Call<AudioListResponse<AudioFromServer>>,
+                response: Response<AudioListResponse<AudioFromServer>>
+            ) {
                 library.postValue(response.body())
                 Log.d("LIB", "SUCCESS: ${response.body()}")
             }
@@ -224,20 +235,29 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         })
     }
 
-    fun loadVoices():LiveData<AudioListResponse<VoiceFromServer>>{
-        Log.d("VOICES", "Token - ${token.value}")
-        val apiInterface = service!!.loadVoices(token.value!!)
+    fun loadVoices(): LiveData<AudioListResponse<VoiceFromServer>> {
+        return try {
+            Log.d("VOICES", "Token - ${token.value}")
+            val apiInterface = service!!.loadVoices(token.value!!)
 
-        serverLoadVoices(apiInterface, voices)
+            serverLoadVoices(apiInterface, voices)
 
-        return voices
+            voices
+        } catch (e: NullPointerException) {
+            controller.online = false
+            voices
+        }
     }
 
-    private fun serverLoadVoices(apiInterface: Call<AudioListResponse<VoiceFromServer>>,
-                                 voices: MutableLiveData<AudioListResponse<VoiceFromServer>>){
+    private fun serverLoadVoices(
+        apiInterface: Call<AudioListResponse<VoiceFromServer>>,
+        voices: MutableLiveData<AudioListResponse<VoiceFromServer>>
+    ) {
         apiInterface.enqueue(object : Callback<AudioListResponse<VoiceFromServer>> {
-            override fun onResponse(call: Call<AudioListResponse<VoiceFromServer>>,
-                                    response: Response<AudioListResponse<VoiceFromServer>>) {
+            override fun onResponse(
+                call: Call<AudioListResponse<VoiceFromServer>>,
+                response: Response<AudioListResponse<VoiceFromServer>>
+            ) {
                 if (response.body() != null)
                     voices.postValue(response.body())
             }
@@ -295,7 +315,11 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         })
     }
 
-    private fun serverSignUp(apiInterface: Call<Any>, token: MutableLiveData<String>, request: LoginRequest) {
+    private fun serverSignUp(
+        apiInterface: Call<Any>,
+        token: MutableLiveData<String>,
+        request: LoginRequest
+    ) {
         apiInterface.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 val loginApiInterface = service!!.authorize(request)
@@ -312,8 +336,9 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     fun process(voiceID: Int): LiveData<ResultFromServer> {
         val file = File(controller.recordingPath)
 
-        val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull()
-            )
+        val requestFile = file.asRequestBody(
+            "audio/*".toMediaTypeOrNull()
+        )
 
         val body = MultipartBody.Part.createFormData("url", file.name, requestFile)
         val voice = "$voiceID".toRequestBody("text/plain".toMediaTypeOrNull())
@@ -325,9 +350,15 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         return result
     }
 
-    private fun serverProcess(apiInterface: Call<ResultFromServer>, result: MutableLiveData<ResultFromServer>) {
+    private fun serverProcess(
+        apiInterface: Call<ResultFromServer>,
+        result: MutableLiveData<ResultFromServer>
+    ) {
         apiInterface.enqueue(object : Callback<ResultFromServer> {
-            override fun onResponse(call: Call<ResultFromServer>, response: Response<ResultFromServer>) {
+            override fun onResponse(
+                call: Call<ResultFromServer>,
+                response: Response<ResultFromServer>
+            ) {
                 Log.d("PROCESS", "SUCCESS - ${response.body()?.url}")
                 if (response.body() != null)
                     result.postValue(response.body())

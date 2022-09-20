@@ -44,6 +44,15 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
             true
         }
 
+        if (!controller.online) {
+            Toast.makeText(
+                this,
+                "К сожалению, вы не подключены к серверу. Вам доступен определенный оффлайн " +
+                        "функционал, но для полноценной работы приложения дождитесь, пожалуйста, " +
+                        "установки подключения.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
         setUp()
         refresh("По названию")
     }
@@ -51,7 +60,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getAudios() {
         controller.loadLibrary().observe(this) {
-            if (it.results.isNotEmpty()) {
+            if (it != null && it.results.isNotEmpty()) {
                 downloadAllFromArray(it)
             } else {
 
