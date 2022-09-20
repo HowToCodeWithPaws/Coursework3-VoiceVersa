@@ -4,10 +4,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.*
+import android.provider.MediaStore
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -18,13 +20,19 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.example.voiceversa.*
+import com.example.voiceversa.BuildConfig
+import com.example.voiceversa.R
 import com.example.voiceversa.controller.readAudioNames
 import com.example.voiceversa.model.Audio
 import com.example.voiceversa.serverClasses.AudioListResponse
 import com.example.voiceversa.serverClasses.VoiceFromServer
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.nio.channels.FileChannel
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
@@ -352,7 +360,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun shareAudio(path: String, source: String, messageSource: String) {
-        try {
+            try {
             val file = File(path)
             if (file.exists()) {
                 val uri = FileProvider.getUriForFile(
@@ -610,6 +618,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }.start()
 
 
+
+
+
+
         playRecBtn.isEnabled = true
         actionsRec.isEnabled = true
         processBtn.isEnabled = controller.online
@@ -695,13 +707,11 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         controller.process(voiceId).observe(this) { resultFromServer ->
             if (resultFromServer != null) {
                 var url = resultFromServer.url
-                println("\n\n\n\n\n" + url)
                 Log.d("PROCESS_RESULT_SAVE", "$url, ${controller.resultPath}")
                 val index = url.lastIndexOf("src")
                 val before = url.subSequence(0, index).toString()
                 val after = url.subSequence(index+3, url.lastIndex).toString()
                 url = before + "result" + after
-                println("\n\n\n\n\n" + url)
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {

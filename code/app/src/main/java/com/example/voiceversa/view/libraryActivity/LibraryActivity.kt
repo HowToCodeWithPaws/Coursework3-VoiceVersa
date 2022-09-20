@@ -18,6 +18,9 @@ import com.example.voiceversa.serverClasses.AudioListResponse
 import com.example.voiceversa.R
 import com.example.voiceversa.view.controller
 import com.example.voiceversa.view.user
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
 import java.util.*
 
 class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
@@ -63,7 +66,6 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
             if (it != null && it.results.isNotEmpty()) {
                 downloadAllFromArray(it)
             } else {
-
                 Toast.makeText(
                     this,
                     "Не получилось загрузить библиотеку с сервера! Попробуйте в другой раз",
@@ -77,11 +79,8 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
     private fun downloadAllFromArray(list: AudioListResponse<AudioFromServer>) {
         val array = ArrayList<Audio>()
         for (audio_from_server in list.results) {
-
             val name = audio_from_server.audio.name
             val origin = if (name.contains("recording")) "recording" else "result"
-
-
             println(audio_from_server.audio.url)
             controller.downloadAudioByURL(
                 audio_from_server.audio.url,
@@ -94,12 +93,13 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
+                    val attr = Files.readAttributes<BasicFileAttributes>(File(controller.savedPath + "/" + name + ".mp3").toPath(), BasicFileAttributes::class.java)
                     array.add(
                         Audio(
                             audio_from_server.id,
                             name,
                             origin,
-                            controller.savedPath + "/" + name + ".mp3"
+                            controller.savedPath + "/" + name + ".mp3", 0, Date(attr.creationTime().toMillis())
                         )
                     )
                 }
