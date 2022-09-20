@@ -33,8 +33,8 @@ import java.util.*
 class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemSelectedListener {
 
-    private lateinit var actionsRec: ImageView
-    private lateinit var actionsRes: ImageView
+    private lateinit var actionsRec: Button
+    private lateinit var actionsRes: Button
     private lateinit var startRecBtn: Button
     private lateinit var attachRecBtn: Button
     private lateinit var pauseRecBtn: Button

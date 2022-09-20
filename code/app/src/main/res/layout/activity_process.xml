@@ -88,14 +88,14 @@
         app:layout_constraintHorizontal_bias="0.10"
         app:layout_constraintStart_toEndOf="@id/playRecBtn" />
 
-    <ImageView
+    <Button
         android:id="@+id/actionsRec"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="5dp"
         app:layout_constraintBottom_toBottomOf="@id/positionRecBar"
         app:layout_constraintStart_toEndOf="@id/positionRecBar"
-        app:srcCompat="@drawable/vertical" />
+        android:background="@drawable/vertical" />
 
 
     <LinearLayout
@@ -215,13 +215,13 @@
 
 
 
-    <ImageView
+    <Button
         android:id="@+id/actionsRes"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="5dp"
         app:layout_constraintBottom_toBottomOf="@id/positionResBar"
         app:layout_constraintStart_toEndOf="@id/positionResBar"
-        app:srcCompat="@drawable/vertical" />
+        android:background="@drawable/vertical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

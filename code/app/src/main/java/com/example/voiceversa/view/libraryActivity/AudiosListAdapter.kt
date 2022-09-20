@@ -64,7 +64,7 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         lateinit var elapsedTimeLabel: TextView
         private var totalTime: Int = 0
         private lateinit var totalTimeLabel: TextView
-        private val menuButton = itemView.findViewById<ImageView>(R.id.actions)
+        private val menuButton = itemView.findViewById<Button>(R.id.actions)
 
         fun createTimeLabel(time: Int): String {
             var timeLabel: String
