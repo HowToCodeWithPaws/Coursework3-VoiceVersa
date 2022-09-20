@@ -1,6 +1,7 @@
 package com.example.voiceversa.view
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
@@ -67,11 +68,9 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun setListeners() {
-
         signInButton.setOnClickListener {
             notGuest("signIn")
         }
-
         signUpButton.setOnClickListener {
             notGuest("signUp")
         }
@@ -79,16 +78,8 @@ class AuthActivity : AppCompatActivity() {
         guestButton.setOnClickListener {
             user = User("")
             controller.online = false
-
-            try {
-                val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
-                val autoSaveRes = sharedPref.getString("autoSaveRes", "").toString()
-                val autoSaveRec = sharedPref.getString("autoSaveRec", "").toString()
-                user.autoSaveRec = autoSaveRec == "true"
-                user.autoSaveRes = autoSaveRes == "true"
-            } catch (e: Exception) {
-            }
-
+            val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
+            getAutoSavedPrefs(sharedPref)
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }
@@ -160,6 +151,14 @@ class AuthActivity : AppCompatActivity() {
             apply()
         }
 
+       getAutoSavedPrefs(sharedPref)
+
+        controller.online = true
+        val intent = Intent(this, ProcessActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun getAutoSavedPrefs(sharedPref : SharedPreferences){
         try {
             val autoSaveRes = sharedPref.getString("autoSaveRes", "").toString()
             val autoSaveRec = sharedPref.getString("autoSaveRec", "").toString()
@@ -167,9 +166,5 @@ class AuthActivity : AppCompatActivity() {
             user.autoSaveRes = autoSaveRes == "true"
         } catch (e: Exception) {
         }
-
-        controller.online = true
-        val intent = Intent(this, ProcessActivity::class.java)
-        startActivity(intent)
     }
 }

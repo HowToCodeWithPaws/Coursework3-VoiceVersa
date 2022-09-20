@@ -30,7 +30,7 @@ import java.util.*
 class RequestActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var sendAudio: Button
-    private lateinit var sendArchive: TextView
+    private lateinit var sendArchive: Button
     private lateinit var startRecBtn: Button
     private lateinit var attachRecBtn: Button
     private lateinit var pauseRecBtn: Button
@@ -384,7 +384,7 @@ class RequestActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    fun sendAudio() {
+    fun sendAudio(view: View) {
         if (checkName()) {
             controller.sendRequest("audio" + requestName.text.toString()).observe(this) {
                 if (it != null) {
