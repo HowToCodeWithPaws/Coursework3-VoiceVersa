@@ -81,8 +81,10 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
             val name = audio_from_server.audio.name
             val origin = if (name.contains("recording")) "recording" else "result"
 
+
+            println(audio_from_server.audio.url)
             controller.downloadAudioByURL(
-                audio_from_server.url,
+                audio_from_server.audio.url,
                 controller.savedPath + "/" + name + ".mp3"
             ).observe(this) {
                 if (it == false) {

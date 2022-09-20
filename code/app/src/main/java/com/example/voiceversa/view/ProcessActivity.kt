@@ -695,25 +695,17 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         controller.process(voiceId).observe(this) { resultFromServer ->
             if (resultFromServer != null) {
                 val url = resultFromServer.url
+                Log.d("PROCESS_RESULT_SAVE", "$url, ${controller.resultPath}")
                 println("\n\n\n\n\n" + url)
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
                         val file = File(controller.resultPath)
-                        var exists : Boolean = false
-                        val handler = Handler()
-                        handler.postDelayed(object : Runnable {
-                            override fun run() {
-                                exists = file.exists()
-                                handler.postDelayed(this, 1000)//1 sec delay
-                            }
-                        }, 0)
-
-                        if(exists){
-                            processed = true
-                            getPlayableResult()
-                        }
+                        processed = true
+                        getPlayableResult()
+                        println("success")
                     } else {
+                        println("failed (returned false)")
                         Toast.makeText(
                             this,
                             "Не получилось загрузить результат с сервера! Попробуйте в другой раз",

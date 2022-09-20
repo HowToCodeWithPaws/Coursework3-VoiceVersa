@@ -152,7 +152,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.body() != null)
                     downloadBody.postValue(writeResponseBodyToDisk(response.body()!!, path))
-                Log.d("LIB", "SUCCESS: ${response.body()}")
+                Log.d("LIB", "SUCCESS: ${response.body().toString()}")
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
