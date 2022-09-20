@@ -55,6 +55,7 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun checkOnline() {
+        controller.loadLibrary()
         if (!controller.online) {
             signInButton.isEnabled = false
             signUpButton.isEnabled = false

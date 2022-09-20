@@ -128,8 +128,6 @@ class Controller(homePath_: String = "empty") : ViewModel() {
                 .client(httpClient.build())
                 .build()
             service = retrofit.create(AudioApiService::class.java)
-            loadLibrary()
-        //    online = true
         } catch (e: Exception) {
             println("\n\nEXCEPTION WHILE CONNECTING TO SERVER\n\n" + e.printStackTrace())
         }
