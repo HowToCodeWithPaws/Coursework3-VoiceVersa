@@ -694,8 +694,13 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
         controller.process(voiceId).observe(this) { resultFromServer ->
             if (resultFromServer != null) {
-                val url = resultFromServer.url
+                var url = resultFromServer.url
+                println("\n\n\n\n\n" + url)
                 Log.d("PROCESS_RESULT_SAVE", "$url, ${controller.resultPath}")
+                val index = url.lastIndexOf("src")
+                val before = url.subSequence(0, index).toString()
+                val after = url.subSequence(index+3, url.lastIndex).toString()
+                url = before + "result" + after
                 println("\n\n\n\n\n" + url)
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
