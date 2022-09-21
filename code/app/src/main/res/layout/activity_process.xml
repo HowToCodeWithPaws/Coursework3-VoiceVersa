@@ -166,6 +166,15 @@
         app:layout_constraintStart_toStartOf="@id/playRecBtn"
         app:layout_constraintTop_toBottomOf="@id/playRecBtn" />
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator"
+        android:visibility="invisible"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:indeterminate="true"
+        android:layout_marginTop="100dp"
+        app:layout_constraintStart_toStartOf="@id/playRecBtn"
+        app:layout_constraintTop_toBottomOf="@id/playRecBtn"/>
 
 
     <Button

@@ -26,6 +26,7 @@ import com.example.voiceversa.controller.readAudioNames
 import com.example.voiceversa.model.Audio
 import com.example.voiceversa.serverClasses.AudioListResponse
 import com.example.voiceversa.serverClasses.VoiceFromServer
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -360,7 +361,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun shareAudio(path: String, source: String, messageSource: String) {
-            try {
+        try {
             val file = File(path)
             if (file.exists()) {
                 val uri = FileProvider.getUriForFile(
@@ -617,11 +618,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             }
         }.start()
 
-
-
-
-
-
         playRecBtn.isEnabled = true
         actionsRec.isEnabled = true
         processBtn.isEnabled = controller.online
@@ -699,6 +695,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun process(view: View) {
+        Toast.makeText(
+            this,
+            "Запрос отправлен на обработку! Преобразование аудио займет некоторое время, пожалуйста, подождите.",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        val progressIndicator = findViewById<CircularProgressIndicator>(R.id.progress_indicator)
+        progressIndicator.visibility = View.VISIBLE
+        progressIndicator.show()
+        processBtn.isEnabled = false
+        processBtn.visibility = View.INVISIBLE
+
         var voiceId = -1
         for (one_voice in user.voices) {
             if (one_voice.title == voice)
@@ -710,13 +718,17 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 Log.d("PROCESS_RESULT_SAVE", "$url, ${controller.resultPath}")
                 val index = url.lastIndexOf("src")
                 val before = url.subSequence(0, index).toString()
-                val after = url.subSequence(index+3, url.lastIndex).toString()
+                val after = url.subSequence(index + 3, url.lastIndex).toString()
                 url = before + "result" + after
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
-                        val file = File(controller.resultPath)
                         processed = true
+                        val progress = 10// getLoadingProgress()
+                        progressIndicator.setProgressCompat(progress, true)
+                        processBtn.isEnabled = true
+                        processBtn.visibility = View.VISIBLE
+
                         getPlayableResult()
                         println("success")
                     } else {

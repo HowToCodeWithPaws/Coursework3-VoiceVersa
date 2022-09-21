@@ -136,9 +136,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun downloadAudioByURL(url: String, path: String): LiveData<Boolean> {
         val apiInterface = service!!.downloadFileWithDynamicUrlSync(url, token.value!!)
-
         serverDownloadAudioByURL(apiInterface, downloadBody, path)
-
         return downloadBody
     }
 
@@ -291,10 +289,12 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         Log.d("TOKEN", "Start")
         if (key == "signIn") {
             val apiInterface = service!!.authorize(LoginRequest(username, password))
+            println("\n\n\nSIGN IN\n\n\n")
             serverSignIn(apiInterface, token)
         } else if (key == "signUp") {
             val request = LoginRequest(username, password)
             val apiInterface = service!!.signUp(request)
+            println("\n\n\nSIGN UP\n\n\n")
             serverSignUp(apiInterface, token, request)
         }
         return token
