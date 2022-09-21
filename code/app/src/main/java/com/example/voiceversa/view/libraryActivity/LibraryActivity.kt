@@ -11,16 +11,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.voiceversa.view.AccountActivity
+import com.example.voiceversa.R
 import com.example.voiceversa.model.Audio
 import com.example.voiceversa.serverClasses.AudioFromServer
 import com.example.voiceversa.serverClasses.AudioListResponse
-import com.example.voiceversa.R
+import com.example.voiceversa.view.AccountActivity
 import com.example.voiceversa.view.controller
 import com.example.voiceversa.view.user
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.attribute.BasicFileAttributes
+import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
@@ -93,13 +93,13 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    val attr = Files.readAttributes<BasicFileAttributes>(File(controller.savedPath + "/" + name + ".mp3").toPath(), BasicFileAttributes::class.java)
                     array.add(
                         Audio(
                             audio_from_server.id,
                             name,
                             origin,
-                            controller.savedPath + "/" + name + ".mp3", 0, Date(attr.creationTime().toMillis())
+                            controller.savedPath + "/" + name + ".mp3", 0,
+                            Date.from((ZonedDateTime.parse(audio_from_server.created)).toInstant())
                         )
                     )
                 }
