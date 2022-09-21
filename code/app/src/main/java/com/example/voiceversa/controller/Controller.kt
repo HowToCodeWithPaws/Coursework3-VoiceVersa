@@ -372,9 +372,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun addToLibrary(audioPath: String): LiveData<Any> {
         val file = File(audioPath)
-
         val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull())
-        val body = MultipartBody.Part.createFormData("library", file.name, requestFile)
+        val body = MultipartBody.Part.createFormData("audio", file.name, requestFile)
         val apiInterface = service!!.save(body, token.value!!)
         serverAddToLibrary(apiInterface, saveResult)
 
@@ -408,7 +407,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
 
         val body =
-            MultipartBody.Part.createFormData("request$requestName", file.name, requestFile)
+            MultipartBody.Part.createFormData("archive", file.name, requestFile)
         val apiInterface = service!!.request(body, token.value!!)
         serverRequest(apiInterface, requestResult)
 

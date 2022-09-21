@@ -89,7 +89,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun logOut() {
         user = User("")
-
+        controller.online = false
         val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
         with(sharedPref.edit()) {
             remove("name")
