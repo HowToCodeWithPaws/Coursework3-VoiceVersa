@@ -82,6 +82,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         val topBar = findViewById<Toolbar>(R.id.top_bar)
         topBar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.account) {
+
+                println("LOOK HERE AUDIOS GOING TO ACCOUNT "+ user.audios.size)
                 val intent = Intent(this, AccountActivity::class.java)
                 startActivity(intent)
             }
@@ -110,6 +112,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         getVoices()
         setEnabled()
         setMenuListeners()
+
+        println("LOOK HERE AUDIOS PROCESS "+ user.audios.size)
     }
 
     private fun setEnabled() {
@@ -724,7 +728,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
                         processed = true
-                        val progress = 10// getLoadingProgress()
+                        val progress = 10
                         progressIndicator.setProgressCompat(progress, true)
                         processBtn.isEnabled = true
                         processBtn.visibility = View.VISIBLE

@@ -56,7 +56,11 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                 Toast.LENGTH_SHORT
             ).show()
         }
+
+
+        println("LOOK HERE AUDIOS BEFORE GET AUDIOS "+ user.audios.size)
         getAudios()
+        println("LOOK HERE AUDIOS AFTER GET AUDIOS "+ user.audios.size)
 
         val timer = object : CountDownTimer(10000, 1000) {
             override fun onTick(millisUntilFinished: Long) {}

@@ -82,6 +82,7 @@ class AuthActivity : AppCompatActivity() {
             controller.online = false
             val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
             getAutoSavedPrefs(sharedPref)
+            println("LOOK HERE AUDIOS GUEST "+ user.audios.size)
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }
@@ -155,6 +156,7 @@ class AuthActivity : AppCompatActivity() {
 
        getAutoSavedPrefs(sharedPref)
 
+        println("LOOK HERE AUDIOS AUTH "+ user.audios.size)
         controller.online = true
         val intent = Intent(this, ProcessActivity::class.java)
         startActivity(intent)
