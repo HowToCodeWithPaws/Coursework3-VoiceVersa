@@ -3,6 +3,7 @@ package com.example.voiceversa.view.libraryActivity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -34,7 +35,6 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         controller.context = this
-        getAudios()
 
         setContentView(R.layout.activity_library)
         Objects.requireNonNull(supportActionBar)!!.hide()
@@ -56,14 +56,23 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                 Toast.LENGTH_SHORT
             ).show()
         }
-        setUp()
-        refresh("По названию")
+        getAudios()
+
+        val timer = object : CountDownTimer(10000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {}
+            override fun onFinish() {
+                setUp()
+                refresh("По названию")
+            }
+        }
+        timer.start()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getAudios() {
         controller.loadLibrary().observe(this) {
             if (it != null && it.results.isNotEmpty()) {
+                println("\n\n\n\n\n\n LOOK HERE GETTING INTO DOWNLOADING, GOT LIST OF "+ it.results.size)
                 downloadAllFromArray(it)
             } else {
                 Toast.makeText(
@@ -81,7 +90,12 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
         for (audio_from_server in list.results) {
             val name = audio_from_server.audio.name
             val origin = if (name.contains("recording")) "recording" else "result"
-            println(audio_from_server.audio.url)
+            println("\n" +
+                    "\n" +
+                    "\n" +
+                    "\n" +
+                    "\n" +
+                    "\nLOOK HERE AUDIO BY URL" + audio_from_server.audio.url)
             controller.downloadAudioByURL(
                 audio_from_server.audio.url,
                 controller.savedPath + "/" + name + ".mp3"
@@ -93,6 +107,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
+                    println("\n\n\n\n\n\nLOOK HERE DOWNLOADED TO "+ controller.savedPath + "/" + name + ".mp3")
                     array.add(
                         Audio(
                             audio_from_server.id,
@@ -106,6 +121,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
             }
         }
         user.audios = array
+        println("LIBRARY DOWNLOADED "+ user.audios)
     }
 
     private fun setUp() {
