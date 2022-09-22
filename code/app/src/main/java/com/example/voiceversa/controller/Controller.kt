@@ -266,10 +266,12 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     private fun deleteAudio(id: Int): LiveData<Any> {
+        println("LOOK HERE CALLING DELETE  ")
         val apiInterface = service!!.delete(id, token.value!!)
 
         serverDeleteAudio(apiInterface, deleteResult)
 
+        println("LOOK HERE CALLED DELETE  ")
         return deleteResult
     }
 
@@ -281,6 +283,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
+                println("LOOK HERE DELETE FUCKED UP ")
                 deleteResult.postValue(null)
             }
         })
