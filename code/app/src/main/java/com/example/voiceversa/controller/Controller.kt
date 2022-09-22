@@ -277,6 +277,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         apiInterface.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 deleteResult.postValue(response.body())
+                println("LOOK HERE DELETE RESULT "+ response.body())
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {

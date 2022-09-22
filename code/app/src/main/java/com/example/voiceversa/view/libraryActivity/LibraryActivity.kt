@@ -90,12 +90,6 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
         for (audio_from_server in list.results) {
             val name = audio_from_server.audio.name
             val origin = if (audio_from_server.is_processed) "result" else "recording"
-            println("\n" +
-                    "\n" +
-                    "\n" +
-                    "\n" +
-                    "\n" +
-                    "\nLOOK HERE AUDIO BY URL" + audio_from_server.audio.url)
             controller.downloadAudioByURL(
                 audio_from_server.audio.url,
                 controller.savedPath + "/" + origin+   audio_from_server.id+ ".mp3"
@@ -107,7 +101,6 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    println("\n\n\n\n\n\nLOOK HERE DOWNLOADED TO "+ controller.savedPath + "/" + name + ".mp3")
                     array.add(
                         Audio(
                             audio_from_server.id,
