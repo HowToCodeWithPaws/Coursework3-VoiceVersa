@@ -89,7 +89,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
         val array = ArrayList<Audio>()
         for (audio_from_server in list.results) {
             val name = audio_from_server.audio.name
-            val origin = if (name.contains("recording")) "recording" else "result"
+            val origin = if (audio_from_server.is_processed) "result" else "recording"
             println("\n" +
                     "\n" +
                     "\n" +
@@ -98,7 +98,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                     "\nLOOK HERE AUDIO BY URL" + audio_from_server.audio.url)
             controller.downloadAudioByURL(
                 audio_from_server.audio.url,
-                controller.savedPath + "/" + name + ".mp3"
+                controller.savedPath + "/" + origin+   audio_from_server.id+ ".mp3"
             ).observe(this) {
                 if (it == false) {
                     Toast.makeText(
@@ -111,9 +111,9 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                     array.add(
                         Audio(
                             audio_from_server.id,
-                            name,
+                            origin+   audio_from_server.id,
                             origin,
-                            controller.savedPath + "/" + name + ".mp3", 0,
+                            controller.savedPath + "/" + origin+   audio_from_server.id+ ".mp3", 0,
                             Date.from((ZonedDateTime.parse(audio_from_server.created)).toInstant())
                         )
                     )
