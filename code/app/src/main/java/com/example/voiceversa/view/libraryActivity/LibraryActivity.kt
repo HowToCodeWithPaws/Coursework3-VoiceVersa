@@ -86,7 +86,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun downloadAllFromArray(list: AudioListResponse<AudioFromServer>) {
-        val array = ArrayList<Audio>()
+        user.audios = ArrayList<Audio>()
         for (audio_from_server in list.results) {
             val name = audio_from_server.audio.name
             val origin = if (audio_from_server.is_processed) "result" else "recording"
@@ -101,7 +101,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    array.add(
+                    user.audios.add(
                         Audio(
                             audio_from_server.id,
                             origin+   audio_from_server.id,
@@ -113,8 +113,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                 }
             }
         }
-        user.audios = array
-        println("LIBRARY DOWNLOADED "+ user.audios)
+        println("LIBRARY DOWNLOADED "+ user.audios.joinToString { el->"\n"+el.title })
     }
 
     private fun setUp() {

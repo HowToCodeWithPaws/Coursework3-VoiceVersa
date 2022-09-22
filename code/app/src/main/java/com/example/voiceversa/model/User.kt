@@ -17,7 +17,7 @@ class User(name_: String = "", var audios: ArrayList<Audio> = ArrayList(), var v
     var autoSaveRes : Boolean = false
 
     override fun toString():String{
-        return "name "+ name +"\n\naudios" + audios.joinToString { el->"\n"+el.title }
+        return "name "+ name+"\n\naudios" + audios.joinToString { el->"\n"+el.title }
     }
 
     init {
