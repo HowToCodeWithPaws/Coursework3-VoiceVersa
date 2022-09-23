@@ -13,12 +13,12 @@ interface AudioApiService {
     @POST("/audio/")
     fun save(@Part audio: MultipartBody.Part, @Header("Authorization") token: String): Call<Any>
 
-    @DELETE("/audio/{id}")
+    @DELETE("/audio/{id}/")
     fun delete(@Path("id") id: Int, @Header("Authorization") token: String): Call<Any>
 
     @Multipart
     @POST("/request/")
-    fun request(@Part sample: MultipartBody.Part, @Header("Authorization") token: String): Call<Any>
+    fun request(@Part sample: MultipartBody.Part, @Part("name")  name : String, @Header("Authorization") token: String): Call<Any>
 
     @Multipart
     @POST("/process/")

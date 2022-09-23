@@ -42,8 +42,5 @@ class AccountActivity : AppCompatActivity() {
             val intent = Intent(this, RequestActivity::class.java)
             startActivity(intent)
         }
-
-
-        println("LOOK HERE AUDIOS ACCOUNT "+ user.audios.size)
     }
 }

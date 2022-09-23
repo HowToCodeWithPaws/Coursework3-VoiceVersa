@@ -58,25 +58,26 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
         }
 
 
-        println("LOOK HERE AUDIOS BEFORE GET AUDIOS "+ user.audios.size)
-        getAudios()
-        println("LOOK HERE AUDIOS AFTER GET AUDIOS "+ user.audios.size)
-
-        val timer = object : CountDownTimer(10000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {}
-            override fun onFinish() {
-                setUp()
-                refresh("По названию")
+        println("LOOK HERE IN LIB " + user.audios.size)
+            //   if(user.audios.isEmpty()){
+            getAudios()
+            val timer = object : CountDownTimer(5000, 1000) {
+                override fun onTick(millisUntilFinished: Long) {}
+                override fun onFinish() {
+                    println("LOOK HERE IN LIB AFTER DOWNLOAD" + user.audios.size)
+                    setUp()
+                    refresh("По названию")
+                }
             }
-        }
-        timer.start()
+            timer.start()
+       // }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getAudios() {
         controller.loadLibrary().observe(this) {
             if (it != null && it.results.isNotEmpty()) {
-                println("\n\n\n\n\n\n LOOK HERE GETTING INTO DOWNLOADING, GOT LIST OF "+ it.results.size)
+                println("LOOK HERE size res"+ it.results.size + " " + it.results.toString())
                 downloadAllFromArray(it)
             } else {
                 Toast.makeText(
@@ -92,19 +93,22 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
     private fun downloadAllFromArray(list: AudioListResponse<AudioFromServer>) {
         user.audios = ArrayList<Audio>()
         for (audio_from_server in list.results) {
+            print("HERE "+ audio_from_server.id)
             val name = audio_from_server.audio.name
             val origin = if (audio_from_server.is_processed) "result" else "recording"
+
             controller.downloadAudioByURL(
                 audio_from_server.audio.url,
                 controller.savedPath + "/" + origin+   audio_from_server.id+ ".mp3"
             ).observe(this) {
-                if (it == false) {
-                    Toast.makeText(
-                        this,
-                        "К сожалению, не удалось загрузить голос $name с сервера. Попробуйте позже.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
+                if (it) {
+                    var add = true
+                    for (audio in user.audios){
+                        if (audio.ID == audio_from_server.id){
+                            add = false
+                        }
+                    }
+                    if(add){
                     user.audios.add(
                         Audio(
                             audio_from_server.id,
@@ -113,11 +117,16 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
                             controller.savedPath + "/" + origin+   audio_from_server.id+ ".mp3", 0,
                             Date.from((ZonedDateTime.parse(audio_from_server.created)).toInstant())
                         )
-                    )
+                    )}
+                } else if(it == false) {
+                    Toast.makeText(
+                        this,
+                        "К сожалению, не удалось загрузить голос $name с сервера. Попробуйте позже.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    }
                 }
             }
-        }
-        println("LIBRARY DOWNLOADED "+ user.audios.joinToString { el->"\n"+el.title })
     }
 
     private fun setUp() {

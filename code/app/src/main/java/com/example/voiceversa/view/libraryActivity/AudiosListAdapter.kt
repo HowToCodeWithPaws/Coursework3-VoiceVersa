@@ -18,6 +18,7 @@ import com.example.voiceversa.BuildConfig
 import com.example.voiceversa.model.Audio
 import com.example.voiceversa.R
 import com.example.voiceversa.view.controller
+import com.example.voiceversa.view.user
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -210,7 +211,9 @@ class AudiosListAdapter(private val audios: ArrayList<Audio>) :
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
-        private fun getPlayableAudio() {
+        private fun getPlayableAudio()
+        {
+            println("LOOK HERE AUDIO in get playable " + user.audios.size)
             val resURL = Uri.parse(audio.url)
             audioPlayer = MediaPlayer.create(itemView.context, resURL)
             audioPlayer?.isLooping = false

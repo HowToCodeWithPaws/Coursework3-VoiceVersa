@@ -83,7 +83,6 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         topBar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.account) {
 
-                println("LOOK HERE AUDIOS GOING TO ACCOUNT "+ user.audios.size)
                 val intent = Intent(this, AccountActivity::class.java)
                 startActivity(intent)
             }
@@ -109,11 +108,10 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
         getPermissions()
         setListeners()
-        getVoices()
+        if(user.voices.isEmpty()){
+            getVoices()}
         setEnabled()
         setMenuListeners()
-
-        println("LOOK HERE AUDIOS PROCESS "+ user.audios.size)
     }
 
     private fun setEnabled() {
@@ -162,13 +160,14 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 voice_from_server.url,
                 controller.voicesPath + "/" + name + ".mp3"
             ).observe(this) {
-                if (it == false) {
-                    Toast.makeText(
-                        this,
-                        "К сожалению, не удалось загрузить голос $name с сервера. Попробуйте позже.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
+                if (it) {
+                    var add = true
+                    for (voice in user.voices){
+                        if (voice.ID == voice_from_server.id){
+                            add = false
+                        }
+                    }
+                    if(add){
                     array.add(
                         Audio(
                             voice_from_server.id,
@@ -176,13 +175,19 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                             origin,
                             controller.voicesPath + "/" + name + ".mp3"
                         )
-                    )
+                    )}
+                } else {
+                    Toast.makeText(
+                        this,
+                        "К сожалению, не удалось загрузить голос $name с сервера. Попробуйте позже.",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
         user.voices = array
 
-        val timer = object : CountDownTimer(10000, 1000) {
+        val timer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {}
             override fun onFinish() {
                 setVoices()
@@ -719,7 +724,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         controller.process(voiceId).observe(this) { resultFromServer ->
             if (resultFromServer != null) {
                 var url = resultFromServer.url
-                Log.d("PROCESS_RESULT_SAVE", "$url, ${controller.resultPath}")
+
                 val index = url.lastIndexOf("src")
                 val before = url.subSequence(0, index).toString()
                 val after = url.subSequence(index + 3, url.lastIndex).toString()
@@ -734,9 +739,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                         processBtn.visibility = View.VISIBLE
 
                         getPlayableResult()
-                        println("success")
                     } else {
-                        println("failed (returned false)")
                         Toast.makeText(
                             this,
                             "Не получилось загрузить результат с сервера! Попробуйте в другой раз",

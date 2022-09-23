@@ -52,7 +52,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun checkOnline() {
         if (!controller.online) {
-            logInOutButton.isEnabled = false
             deleteLibrary.isEnabled = false
             Toast.makeText(
                 this,

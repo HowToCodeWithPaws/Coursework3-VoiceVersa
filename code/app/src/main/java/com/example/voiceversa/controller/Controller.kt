@@ -161,32 +161,25 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     private fun writeResponseBodyToDisk(body: ResponseBody, path: String): Boolean {
         return try {
-            println("\n\n\n\nENTER DOWNLOAD\n\n\n\n")
             val file = File(path)
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
 
-            println("\n\n\n\nSTREAMS MADE\n\n\n\n")
             try {
                 val fileReader = ByteArray(4096)
                 val fileSize = body.contentLength()
                 var fileSizeDownloaded: Long = 0
 
-                println("\n\n\n\nCHECKPOINT 1\n\n\n\n")
                 inputStream = body.byteStream()
                 outputStream = FileOutputStream(file)
 
                 while (true) {
-                    println("\n\n\n\nENTER WHILE\n\n\n\n")
                     val read: Int = inputStream.read(fileReader)
                     if (read == -1) {
-
-                        println("\n\n\n\nEXIT DOWNLOAD\n\n\n\n")
                         break
                     }
                     outputStream.write(fileReader, 0, read)
                     fileSizeDownloaded += read.toLong()
-                    println("file download: $fileSizeDownloaded of $fileSize")
                 }
                 outputStream.flush()
                 true
@@ -266,12 +259,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     }
 
     private fun deleteAudio(id: Int): LiveData<Any> {
-        println("LOOK HERE CALLING DELETE  ")
         val apiInterface = service!!.delete(id, token.value!!)
-
         serverDeleteAudio(apiInterface, deleteResult)
-
-        println("LOOK HERE CALLED DELETE  ")
         return deleteResult
     }
 
@@ -279,11 +268,9 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         apiInterface.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 deleteResult.postValue(response.body())
-                println("LOOK HERE DELETE RESULT "+ response.body())
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
-                println("LOOK HERE DELETE FUCKED UP ")
                 deleteResult.postValue(null)
             }
         })
@@ -293,12 +280,10 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         Log.d("TOKEN", "Start")
         if (key == "signIn") {
             val apiInterface = service!!.authorize(LoginRequest(username, password))
-            println("\n\n\nSIGN IN\n\n\n")
             serverSignIn(apiInterface, token)
         } else if (key == "signUp") {
             val request = LoginRequest(username, password)
             val apiInterface = service!!.signUp(request)
-            println("\n\n\nSIGN UP\n\n\n")
             serverSignUp(apiInterface, token, request)
         }
         return token
@@ -412,7 +397,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
         val body =
             MultipartBody.Part.createFormData("archive", file.name, requestFile)
-        val apiInterface = service!!.request(body, token.value!!)
+        val apiInterface = service!!.request(body, requestName, token.value!!)
         serverRequest(apiInterface, requestResult)
 
         return requestResult
@@ -456,6 +441,8 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun deleteLibrary(): Boolean {
         try {
+
+            println("LOOK HERE  delete lib"+ user.audios.size)
             var result = true
             val copy = user.audios.toArray()
             for (i in 0 until user.audios.size) {
@@ -463,6 +450,7 @@ class Controller(homePath_: String = "empty") : ViewModel() {
             }
             user.audios = ArrayList()
 
+            println("LOOK HERE lib after"+ user.audios.size)
             return result
         } catch (e: Exception) {
             e.printStackTrace()
@@ -472,12 +460,18 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun deleteAudio(audio: Audio): Boolean {
         try {
+            println("LOOK HERE "+ user.audios.size)
             user.audios.remove(audio)
+            println("LOOK HERE after"+ user.audios.size)
             val file = File(audio.url)
             val uri = FileProvider.getUriForFile(
                 this.context!!,
                 BuildConfig.APPLICATION_ID + ".provider", file
             )
+
+                //          println( "LOOK HERE "+user.audios[1].title)
+
+
 
             val contentResolver: ContentResolver =
                 this.context!!.contentResolver
