@@ -10,6 +10,7 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.voiceversa.R
@@ -57,43 +58,42 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
             ).show()
         }
 
-
-        println("LOOK HERE IN LIB " + user.audios.size)
-            //   if(user.audios.isEmpty()){
             getAudios()
             val timer = object : CountDownTimer(5000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {}
                 override fun onFinish() {
-                    println("LOOK HERE IN LIB AFTER DOWNLOAD" + user.audios.size)
                     setUp()
                     refresh("По названию")
                 }
             }
             timer.start()
-       // }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getAudios() {
-        controller.loadLibrary().observe(this) {
-            if (it != null && it.results.isNotEmpty()) {
-                println("LOOK HERE size res"+ it.results.size + " " + it.results.toString())
-                downloadAllFromArray(it)
-            } else {
-                Toast.makeText(
-                    this,
-                    "Не получилось загрузить библиотеку с сервера! Попробуйте в другой раз",
-                    Toast.LENGTH_SHORT
-                ).show()
+        val load =  controller.loadLibrary()
+        val context = this
+        load.observe(this, object: Observer<AudioListResponse<AudioFromServer>> {
+            override fun onChanged(t: AudioListResponse<AudioFromServer>?) {
+                if (t != null && t.results.isNotEmpty()) {
+                    downloadAllFromArray(t)
+                    load.removeObserver(this)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Не получилось загрузить библиотеку с сервера! Попробуйте в другой раз",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-        }
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun downloadAllFromArray(list: AudioListResponse<AudioFromServer>) {
         user.audios = ArrayList<Audio>()
         for (audio_from_server in list.results) {
-            print("HERE "+ audio_from_server.id)
+
             val name = audio_from_server.audio.name
             val origin = if (audio_from_server.is_processed) "result" else "recording"
 

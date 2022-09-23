@@ -441,16 +441,12 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun deleteLibrary(): Boolean {
         try {
-
-            println("LOOK HERE  delete lib"+ user.audios.size)
             var result = true
             val copy = user.audios.toArray()
             for (i in 0 until user.audios.size) {
                 result = result && deleteAudio(copy[i] as Audio)
             }
             user.audios = ArrayList()
-
-            println("LOOK HERE lib after"+ user.audios.size)
             return result
         } catch (e: Exception) {
             e.printStackTrace()
@@ -460,19 +456,12 @@ class Controller(homePath_: String = "empty") : ViewModel() {
 
     fun deleteAudio(audio: Audio): Boolean {
         try {
-            println("LOOK HERE "+ user.audios.size)
             user.audios.remove(audio)
-            println("LOOK HERE after"+ user.audios.size)
             val file = File(audio.url)
             val uri = FileProvider.getUriForFile(
                 this.context!!,
                 BuildConfig.APPLICATION_ID + ".provider", file
             )
-
-                //          println( "LOOK HERE "+user.audios[1].title)
-
-
-
             val contentResolver: ContentResolver =
                 this.context!!.contentResolver
             contentResolver.delete(uri, null, null)

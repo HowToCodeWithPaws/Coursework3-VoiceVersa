@@ -731,13 +731,8 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 url = before + "result" + after
                 Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
                 controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
-                    if (it) {
-                        processed = true
-                        val progress = 10
-                        progressIndicator.setProgressCompat(progress, true)
-                        processBtn.isEnabled = true
-                        processBtn.visibility = View.VISIBLE
 
+                    if (it) {
                         getPlayableResult()
                     } else {
                         Toast.makeText(
@@ -748,13 +743,18 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     }
                 }
             } else {
-
                 Toast.makeText(
                     this,
                     "Не получилось обработать аудио! Попробуйте в другой раз",
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
+            processed = true
+            val progress = 10
+            progressIndicator.setProgressCompat(progress, true)
+            processBtn.isEnabled = true
+            processBtn.visibility = View.VISIBLE
         }
     }
 
