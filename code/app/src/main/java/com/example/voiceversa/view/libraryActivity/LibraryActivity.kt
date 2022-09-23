@@ -58,6 +58,7 @@ class LibraryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener 
             ).show()
         }
 
+            setUp()
             getAudios()
             val timer = object : CountDownTimer(5000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {}

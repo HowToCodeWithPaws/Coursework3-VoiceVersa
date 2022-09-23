@@ -259,7 +259,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     R.id.add -> {
                         addAudioToLibrary(
                             "recording", "Запись добавлена в библиотеку",
-                            "запись"
+                            "запись", false
                         )
                         true
                     }
@@ -291,7 +291,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                     R.id.add -> {
                         addAudioToLibrary(
                             "result", "Результат добавлен в библиотеку",
-                            "результат"
+                            "результат", true
                         )
                         true
                     }
@@ -334,7 +334,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    private fun addAudioToLibrary(source: String, message: String, messageSource: String) {
+    private fun addAudioToLibrary(source: String, message: String, messageSource: String, is_processed : Boolean) {
         try {
             val sdf = SimpleDateFormat("dd.M.yyyy_hh.mm")
             val currentDate = sdf.format(Date())
@@ -343,7 +343,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
                 overwrite = false
             )
 
-            controller.addToLibrary(controller.homePath + "/" + source + ".mp3").observe(this) {
+            controller.addToLibrary(controller.homePath + "/" + source + ".mp3", is_processed).observe(this) {
                 if (it == null) {
                     Toast.makeText(
                         this,
@@ -727,13 +727,21 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
 
                 val index = url.lastIndexOf("src")
                 val before = url.subSequence(0, index).toString()
-                val after = url.subSequence(index + 3, url.lastIndex).toString()
+                val after = url.subSequence(index + 3, url.lastIndex+1).toString()
                 url = before + "result" + after
-                Toast.makeText(this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
-                controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
 
+                println("LOOK HERE URL "+url )
+                Toast.makeText( this, "Ваша аудиозапись обрабатывается", Toast.LENGTH_SHORT).show()
+                controller.downloadAudioByURL(url, controller.resultPath).observe(this) {
                     if (it) {
-                        getPlayableResult()
+println("LOOK HERE got doanload")
+                        val timer = object : CountDownTimer(5000, 1000) {
+                            override fun onTick(millisUntilFinished: Long) {}
+                            override fun onFinish() {
+                                getPlayableResult()
+                            }
+                        }
+                        timer.start()
                     } else {
                         Toast.makeText(
                             this,
@@ -753,6 +761,7 @@ class ProcessActivity : AppCompatActivity(), View.OnClickListener,
             processed = true
             val progress = 10
             progressIndicator.setProgressCompat(progress, true)
+            progressIndicator.visibility = View.GONE
             processBtn.isEnabled = true
             processBtn.visibility = View.VISIBLE
         }

@@ -292,8 +292,12 @@ class Controller(homePath_: String = "empty") : ViewModel() {
     private fun serverSignIn(apiInterface: Call<Token>, token: MutableLiveData<String>) {
         apiInterface.enqueue(object : Callback<Token> {
             override fun onResponse(call: Call<Token>, response: Response<Token>) {
+                if(response.body() == null){
+                    token.postValue(null)
+                    Log.d("TOKEN", "FAILED")
+                }else{
                 Log.d("TOKEN", "SUCCESS: ${response.body()}")
-                token.postValue("Token ${response.body()?.token}")
+                token.postValue("Token ${response.body()?.token}")}
             }
 
             override fun onFailure(call: Call<Token>, t: Throwable) {
@@ -359,11 +363,11 @@ class Controller(homePath_: String = "empty") : ViewModel() {
         })
     }
 
-    fun addToLibrary(audioPath: String): LiveData<Any> {
+    fun addToLibrary(audioPath: String, is_processed : Boolean): LiveData<Any> {
         val file = File(audioPath)
         val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("audio", file.name, requestFile)
-        val apiInterface = service!!.save(body, token.value!!)
+        val apiInterface = service!!.save(body, is_processed,token.value!!)
         serverAddToLibrary(apiInterface, saveResult)
 
         return saveResult

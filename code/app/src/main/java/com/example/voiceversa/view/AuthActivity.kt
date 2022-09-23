@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.voiceversa.R
 import com.example.voiceversa.controller.Controller
 import com.example.voiceversa.model.User
+import kotlinx.android.synthetic.main.activity_auth.*
 import java.util.*
 
 lateinit var user: User
@@ -35,7 +36,6 @@ class AuthActivity : AppCompatActivity() {
         val home = this.externalMediaDirs!![0]!!.absolutePath
 
         controller = Controller(home)
-        println("\n\n\n\n controller "+ controller+"\n\n\n\n\n")
 
         setContentView(R.layout.activity_auth)
         Objects.requireNonNull(supportActionBar)!!.title = "VoiceVersa"
@@ -51,11 +51,10 @@ class AuthActivity : AppCompatActivity() {
 
         checkOnline()
         setListeners()
-        checkSaved()
+   //     checkSaved()
     }
 
     private fun checkOnline() {
-     //   controller.loadLibrary()
         if (!controller.online) {
             signInButton.isEnabled = false
             signUpButton.isEnabled = false
@@ -82,7 +81,6 @@ class AuthActivity : AppCompatActivity() {
             controller.online = false
             val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
             getAutoSavedPrefs(sharedPref)
-            println("LOOK HERE AUDIOS GUEST "+ user.audios.size)
             val intent = Intent(this, ProcessActivity::class.java)
             startActivity(intent)
         }
@@ -143,7 +141,7 @@ class AuthActivity : AppCompatActivity() {
 
     private fun proceedAuthorized(token: String) {
         user = User(loginText.text.toString())
-
+print("LOOK HERE " + loginText.text.toString())
         val sharedPref = this.getSharedPreferences("user", MODE_PRIVATE)
         with(sharedPref.edit()) {
             putString("name", loginText.text.toString())
