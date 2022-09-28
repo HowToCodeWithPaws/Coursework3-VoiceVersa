@@ -50,7 +50,7 @@
         app:layout_constraintHorizontal_bias="0.15"
         app:layout_constraintStart_toEndOf="@id/playBtn" />
 
-    <ImageView
+    <Button
         android:id="@+id/actions"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -59,7 +59,7 @@
         app:layout_constraintBottom_toBottomOf="@id/positionBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/positionBar"
-        app:srcCompat="@drawable/vertical" />
+        android:background="@drawable/vertical" />
 
 
     <TextView

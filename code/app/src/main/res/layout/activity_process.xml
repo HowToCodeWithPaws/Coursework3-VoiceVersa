@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".View.Settings.ProcessActivity"
+    tools:context=".view.ProcessActivity"
     android:theme="@style/Theme.FancyWork">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -42,6 +42,19 @@
 
 
     <Button
+        android:id="@+id/pauseRecBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/stop"
+        app:layout_constraintStart_toEndOf="@id/startRecBtn"
+        app:layout_constraintBottom_toBottomOf="@id/startRecBtn" />
+
+
+
+    <Button
         android:id="@+id/attachRecBtn"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -53,18 +66,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-
-    <Button
-        android:id="@+id/pauseRecBtn"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="16dp"
-        android:background="@drawable/stop"
-        app:layout_constraintStart_toEndOf="@id/startRecBtn"
-        app:layout_constraintBottom_toBottomOf="@id/startRecBtn" />
 
 
     <Button
@@ -87,7 +88,14 @@
         app:layout_constraintHorizontal_bias="0.10"
         app:layout_constraintStart_toEndOf="@id/playRecBtn" />
 
-
+    <Button
+        android:id="@+id/actionsRec"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/positionRecBar"
+        app:layout_constraintStart_toEndOf="@id/positionRecBar"
+        android:background="@drawable/vertical" />
 
 
     <LinearLayout
@@ -158,6 +166,15 @@
         app:layout_constraintStart_toStartOf="@id/playRecBtn"
         app:layout_constraintTop_toBottomOf="@id/playRecBtn" />
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator"
+        android:visibility="invisible"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:indeterminate="true"
+        android:layout_marginTop="100dp"
+        app:layout_constraintStart_toStartOf="@id/playRecBtn"
+        app:layout_constraintTop_toBottomOf="@id/playRecBtn"/>
 
 
     <Button
@@ -205,22 +222,15 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/actionsRec"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="5dp"
-        app:layout_constraintBottom_toBottomOf="@id/positionRecBar"
-        app:layout_constraintStart_toEndOf="@id/positionRecBar"
-        app:srcCompat="@drawable/vertical" />
 
-    <ImageView
+
+    <Button
         android:id="@+id/actionsRes"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="5dp"
         app:layout_constraintBottom_toBottomOf="@id/positionResBar"
         app:layout_constraintStart_toEndOf="@id/positionResBar"
-        app:srcCompat="@drawable/vertical" />
+        android:background="@drawable/vertical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

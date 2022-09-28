@@ -1,4 +1,4 @@
-package com.example.voiceversa.View.Library
+package com.example.voiceversa.view.libraryActivity
 
 class ListForRV(
     val name: String = "",
